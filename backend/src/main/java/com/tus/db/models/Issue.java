@@ -2,6 +2,8 @@ package com.tus.db.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 @Entity
 @Table(name = "issues")
@@ -17,11 +19,13 @@ public class Issue {
     @Column(length = 2000)
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status; // OPEN, IN_PROGRESS, RESOLVED, VERIFIED, CLOSED
+    private IssueStatus status;// OPEN, IN_PROGRESS, RESOLVED, VERIFIED, CLOSED
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String priority; // LOW, MEDIUM, HIGH
+    private IssuePriority priority; // LOW, MEDIUM, HIGH
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -43,17 +47,17 @@ public class Issue {
 
     public Issue() {
         this.createdAt = LocalDateTime.now();
-        this.status = "OPEN";
+        this.status = IssueStatus.OPEN;
     }
 
-    public Issue(String title, String description, String priority,
+    public Issue(String title, String description, IssuePriority priority,
                  Project project, User reportedBy) {
         this.title = title;
         this.description = description;
         this.priority = priority;
         this.project = project;
         this.reportedBy = reportedBy;
-        this.status = "OPEN";
+        this.status = IssueStatus.OPEN;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -65,11 +69,11 @@ public class Issue {
 
     public String getDescription() { return description; }
 
-    public String getStatus() { return status; }
+    public IssueStatus getStatus() { return status; }
 
-    public void setStatus(String status) { this.status = status; }
+    public void setStatus(IssueStatus status) { this.status = status; }
 
-    public String getPriority() { return priority; }
+    public IssuePriority getPriority() { return priority; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 

@@ -1,6 +1,7 @@
 package com.tus.controllers;
 
 import com.tus.db.models.Project;
+import com.tus.dtos.ProjectRequestDto;
 import com.tus.dtos.ProjectResponseDto;
 import com.tus.services.ProjectService;
 import org.springframework.http.ResponseEntity;
@@ -21,21 +22,42 @@ public class ProjectController {
 
     // Create new project
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestParam String name,
-                                                 @RequestParam String description) {
+    public ResponseEntity<ProjectResponseDto> createProject(
+            @RequestBody ProjectRequestDto requestDto) {
 
-        Project project = projectService.createProject(name, description);
+        Project project = projectService.createProject(
+                requestDto.getName(),
+                requestDto.getDescription()
+        );
 
-        return ResponseEntity.ok(project);
+        ProjectResponseDto responseDto = new ProjectResponseDto(
+                project.getId(),
+                project.getName(),
+                project.getDescription(),
+                project.getStatus(),
+                project.getCreatedAt()
+        );
+
+        return ResponseEntity.ok(responseDto);
     }
 
     // Get all projects
     @GetMapping
-    public ResponseEntity<List<Project>> getAllProjects() {
+    public ResponseEntity<List<ProjectResponseDto>> getAllProjects() {
 
         List<Project> projects = projectService.getAllProjects();
 
-        return ResponseEntity.ok(projects);
+        List<ProjectResponseDto> responseList = projects.stream()
+                .map(project -> new ProjectResponseDto(
+                        project.getId(),
+                        project.getName(),
+                        project.getDescription(),
+                        project.getStatus(),
+                        project.getCreatedAt()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(responseList);
     }
 
     @PutMapping("/{id}/archive")
