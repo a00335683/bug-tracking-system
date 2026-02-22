@@ -97,7 +97,11 @@ public class IssueController {
             @PathVariable Long id,
             @RequestBody UpdateIssueStatusRequestDto requestDto) {
 
-        Issue issue = issueService.updateStatus(id, requestDto.getStatus());
+        Issue issue = issueService.updateStatus(
+                id,
+                requestDto.getStatus(),
+                requestDto.getUserId()
+        );
 
         IssueResponseDto responseDto = new IssueResponseDto(
                 issue.getId(),

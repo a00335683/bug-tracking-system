@@ -74,23 +74,54 @@ public class IssueService {
         return issueRepository.save(issue);
     }
 
-    public Issue updateStatus(Long issueId, String newStatus) {
+    public Issue updateStatus(Long issueId, String newStatus, Long userId) {
 
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new RuntimeException("Issue not found"));
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         IssueStatus targetStatus = IssueStatus.valueOf(newStatus.toUpperCase());
         IssueStatus currentStatus = issue.getStatus();
 
-        // Valid transitions only
-        boolean allowed =
+        // Lifecycle validation
+        boolean allowedTransition =
                 (currentStatus == IssueStatus.OPEN && targetStatus == IssueStatus.IN_PROGRESS) ||
                         (currentStatus == IssueStatus.IN_PROGRESS && targetStatus == IssueStatus.RESOLVED) ||
                         (currentStatus == IssueStatus.RESOLVED && targetStatus == IssueStatus.VERIFIED) ||
                         (currentStatus == IssueStatus.VERIFIED && targetStatus == IssueStatus.CLOSED);
 
-        if (!allowed) {
+        if (!allowedTransition) {
             throw new RuntimeException("Invalid status transition: " + currentStatus + " -> " + targetStatus);
+        }
+
+        // ROLE VALIDATION
+        switch (targetStatus) {
+
+            case IN_PROGRESS:
+                if (!"DEVELOPER".equals(user.getRole())) {
+                    throw new RuntimeException("Only developer can move issue to IN_PROGRESS");
+                }
+                break;
+
+            case RESOLVED:
+                if (!"DEVELOPER".equals(user.getRole())) {
+                    throw new RuntimeException("Only developer can resolve issue");
+                }
+                break;
+
+            case VERIFIED:
+                if (!"TESTER".equals(user.getRole())) {
+                    throw new RuntimeException("Only tester can verify issue");
+                }
+                break;
+
+            case CLOSED:
+                if (!"ADMIN".equals(user.getRole())) {
+                    throw new RuntimeException("Only admin can close issue");
+                }
+                break;
         }
 
         issue.setStatus(targetStatus);
