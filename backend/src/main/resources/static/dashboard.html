@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bug Tracker - Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Dashboard</h2>
+
+    <div class="row">
+
+        <div class="col-md-4">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Open Issues</h5>
+                    <h2 id="openCount">0</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Resolved Issues</h5>
+                    <h2 id="resolvedCount">0</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-danger shadow">
+                <div class="card-body">
+                    <h5 class="card-title">High Priority</h5>
+                    <h2 id="highPriorityCount">0</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "login.html";
+    }
+
+    $(document).ready(function () {
+
+        $.ajax({
+            url: "/api/issues",
+            type: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (issues) {
+
+                let open = 0;
+                let resolved = 0;
+                let high = 0;
+
+                issues.forEach(issue => {
+                    if (issue.status === "OPEN") open++;
+                    if (issue.status === "RESOLVED") resolved++;
+                    if (issue.priority === "HIGH") high++;
+                });
+
+                $("#openCount").text(open);
+                $("#resolvedCount").text(resolved);
+                $("#highPriorityCount").text(high);
+            },
+            error: function () {
+                alert("Failed to load issues.");
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>
