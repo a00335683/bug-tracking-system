@@ -79,6 +79,11 @@ public class IssueService {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new RuntimeException("Issue not found"));
 
+        // closed issues cannot change
+        if (issue.getStatus() == IssueStatus.CLOSED) {
+            throw new RuntimeException("Closed issues cannot be modified");
+        }
+
         IssueStatus targetStatus = IssueStatus.valueOf(newStatus.toUpperCase());
         IssueStatus currentStatus = issue.getStatus();
 

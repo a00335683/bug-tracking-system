@@ -4,6 +4,8 @@ import com.tus.enums.IssuePriority;
 import com.tus.enums.IssueStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
@@ -46,6 +48,9 @@ public class Issue {
     @ManyToOne
     @JoinColumn(name = "assigned_to")
     private User assignedTo;
+
+    @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 
     public Issue() {
         this.createdAt = LocalDateTime.now();

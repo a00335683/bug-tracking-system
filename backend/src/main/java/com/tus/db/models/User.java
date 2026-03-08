@@ -2,6 +2,8 @@ package com.tus.db.models;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -21,6 +23,9 @@ public class User {
 
     @Column(nullable = false)
     private boolean active = true;
+
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments;
 
     // Constructors
     public User() {}
