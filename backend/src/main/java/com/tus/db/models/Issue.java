@@ -1,5 +1,7 @@
 package com.tus.db.models;
 
+import com.tus.enums.IssuePriority;
+import com.tus.enums.IssueStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import jakarta.persistence.EnumType;

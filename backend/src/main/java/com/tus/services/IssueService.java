@@ -8,8 +8,8 @@ import com.tus.db.repos.ProjectRepository;
 import com.tus.db.repos.UserRepository;
 import org.springframework.stereotype.Service;
 
-import com.tus.db.models.IssuePriority;
-import com.tus.db.models.IssueStatus;
+import com.tus.enums.IssuePriority;
+import com.tus.enums.IssueStatus;
 
 import java.util.List;
 
