@@ -1,6 +1,7 @@
 package com.tus.db.repos;
 
 import com.tus.db.models.Issue;
+import com.tus.db.models.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,4 +12,7 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 
     List<Issue> findByStatus(String status);
 
+    List<Issue> findByProject(Project project);
+
+    List<Issue> findByPriority(String priority);
 }

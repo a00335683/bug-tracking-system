@@ -13,6 +13,7 @@ public class IssueResponseDto {
     private Long projectId;
     private Long reportedById;
     private Long assignedToId;
+    private String resolutionNote;
 
     public IssueResponseDto(Long id,
                             String title,
@@ -43,4 +44,11 @@ public class IssueResponseDto {
     public Long getProjectId() { return projectId; }
     public Long getReportedById() { return reportedById; }
     public Long getAssignedToId() { return assignedToId; }
+    public String getResolutionNote() {
+        return resolutionNote;
+    }
+
+    public void setResolutionNote(String resolutionNote) {
+        this.resolutionNote = resolutionNote;
+    }
 }

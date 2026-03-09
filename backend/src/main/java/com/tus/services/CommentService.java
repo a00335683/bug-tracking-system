@@ -28,10 +28,10 @@ public class CommentService {
     public Comment addComment(Long issueId, Long userId, String message) {
 
         Issue issue = issueRepository.findById(issueId)
-                .orElseThrow(() -> new RuntimeException("Issue not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Comment comment = new Comment();
         comment.setIssue(issue);
@@ -44,7 +44,7 @@ public class CommentService {
     public List<Comment> getCommentsForIssue(Long issueId) {
 
         Issue issue = issueRepository.findById(issueId)
-                .orElseThrow(() -> new RuntimeException("Issue not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 
         return commentRepository.findByIssueOrderByCreatedDateAsc(issue);
     }

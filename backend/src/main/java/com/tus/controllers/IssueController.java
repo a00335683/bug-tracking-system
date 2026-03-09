@@ -50,25 +50,10 @@ public class IssueController {
 
     // Get all issues
     @GetMapping
-    public ResponseEntity<List<IssueResponseDto>> getAllIssues() {
-
-        List<IssueResponseDto> responseList = issueService.getAllIssues()
-                .stream()
-                .map(issue -> new IssueResponseDto(
-                        issue.getId(),
-                        issue.getTitle(),
-                        issue.getDescription(),
-                        issue.getStatus().name(),
-                        issue.getPriority().name(),
-                        issue.getCreatedAt(),
-                        issue.getProject().getId(),
-                        issue.getReportedBy().getId(),
-                        issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
-                ))
-                .toList();
-
-        return ResponseEntity.ok(responseList);
+    public ResponseEntity<List<Issue>> getAllIssues() {
+        return ResponseEntity.ok(issueService.getAllIssues());
     }
+
 
     @PutMapping("/{id}/assign")
     public ResponseEntity<IssueResponseDto> assignIssue(
@@ -97,7 +82,11 @@ public class IssueController {
             @PathVariable Long id,
             @RequestBody UpdateIssueStatusRequestDto requestDto) {
 
-        Issue issue = issueService.updateStatus(id, requestDto.getStatus());
+        Issue issue = issueService.updateStatus(
+                id,
+                requestDto.getStatus(),
+                requestDto.getResolutionNote()
+        );
 
         IssueResponseDto responseDto = new IssueResponseDto(
                 issue.getId(),
@@ -112,5 +101,29 @@ public class IssueController {
         );
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<IssueResponseDto>> filterIssues(
+            @RequestParam(required = false) Long projectId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority) {
+
+        List<IssueResponseDto> responseList = issueService.filterIssues(projectId, status, priority)
+                .stream()
+                .map(issue -> new IssueResponseDto(
+                        issue.getId(),
+                        issue.getTitle(),
+                        issue.getDescription(),
+                        issue.getStatus().name(),
+                        issue.getPriority().name(),
+                        issue.getCreatedAt(),
+                        issue.getProject().getId(),
+                        issue.getReportedBy().getId(),
+                        issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(responseList);
     }
 }

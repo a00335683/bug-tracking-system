@@ -34,6 +34,9 @@ public class Issue {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(length = 1000)
+    private String resolutionNote;
+
     // Many issues belong to one project
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
@@ -91,4 +94,12 @@ public class Issue {
     public User getAssignedTo() { return assignedTo; }
 
     public void setAssignedTo(User assignedTo) { this.assignedTo = assignedTo; }
+
+    public String getResolutionNote() {
+        return resolutionNote;
+    }
+
+    public void setResolutionNote(String resolutionNote) {
+        this.resolutionNote = resolutionNote;
+    }
 }

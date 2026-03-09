@@ -36,14 +36,14 @@ public class IssueService {
                              String priority) {
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
         if (!project.getStatus().equals("ACTIVE")) {
-            throw new RuntimeException("Cannot create issue for archived project");
+            throw new IllegalArgumentException("Cannot create issue for archived project");
         }
 
         User reporter = userRepository.findById(reporterId)
-                .orElseThrow(() -> new RuntimeException("Reporter not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Reporter not found"));
 
         IssuePriority issuePriority = IssuePriority.valueOf(priority.toUpperCase());
         Issue issue = new Issue(title, description, issuePriority, project, reporter);
@@ -58,30 +58,31 @@ public class IssueService {
     public Issue assignIssue(Long issueId, Long developerId) {
 
         Issue issue = issueRepository.findById(issueId)
-                .orElseThrow(() -> new RuntimeException("Issue not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 
         User developer = userRepository.findById(developerId)
-                .orElseThrow(() -> new RuntimeException("Developer not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Developer not found"));
 
-        // Simple role check (we'll improve later)
         if (!"DEVELOPER".equals(developer.getRole())) {
-            throw new RuntimeException("Selected user is not a developer");
+            throw new IllegalArgumentException("Selected user is not a developer");
         }
 
         issue.setAssignedTo(developer);
         issue.setStatus(IssueStatus.IN_PROGRESS);
 
+        Issue savedIssue = issueRepository.save(issue);
+
         return issueRepository.save(issue);
     }
 
-    public Issue updateStatus(Long issueId, String newStatus) {
+    public Issue updateStatus(Long issueId, String newStatus, String resolutionNote) {
 
         Issue issue = issueRepository.findById(issueId)
-                .orElseThrow(() -> new RuntimeException("Issue not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 
         // closed issues cannot change
         if (issue.getStatus() == IssueStatus.CLOSED) {
-            throw new RuntimeException("Closed issues cannot be modified");
+            throw new IllegalArgumentException("Closed issues cannot be modified");
         }
 
         IssueStatus targetStatus = IssueStatus.valueOf(newStatus.toUpperCase());
@@ -95,10 +96,35 @@ public class IssueService {
                         (currentStatus == IssueStatus.VERIFIED && targetStatus == IssueStatus.CLOSED);
 
         if (!allowed) {
-            throw new RuntimeException("Invalid status transition: " + currentStatus + " -> " + targetStatus);
+            throw new IllegalStateException("Invalid status transition: " + currentStatus + " -> " + targetStatus);
+        }
+
+        if (targetStatus == IssueStatus.RESOLVED && (resolutionNote == null || resolutionNote.isBlank())) {
+            throw new IllegalArgumentException("Resolution note is required when resolving an issue");
+        }
+
+        if (targetStatus == IssueStatus.RESOLVED) {
+            issue.setResolutionNote(resolutionNote);
         }
 
         issue.setStatus(targetStatus);
         return issueRepository.save(issue);
+    }
+
+    public List<Issue> filterIssues(Long projectId, String status, String priority) {
+
+        if (projectId != null) {
+            return issueRepository.findByProjectId(projectId);
+        }
+
+        if (status != null && !status.isBlank()) {
+            return issueRepository.findByStatus(status.toUpperCase());
+        }
+
+        if (priority != null && !priority.isBlank()) {
+            return issueRepository.findByPriority(priority.toUpperCase());
+        }
+
+        return issueRepository.findAll();
     }
 }

@@ -75,4 +75,20 @@ public class ProjectController {
 
         return ResponseEntity.ok(responseDto);
     }
+
+    @PutMapping("/{projectId}/reactivate")
+    public ResponseEntity<ProjectResponseDto> reactivateProject(@PathVariable Long projectId) {
+
+        Project project = projectService.reactivateProject(projectId);
+
+        ProjectResponseDto responseDto = new ProjectResponseDto(
+                project.getId(),
+                project.getName(),
+                project.getDescription(),
+                project.getStatus(),
+                project.getCreatedAt()
+        );
+
+        return ResponseEntity.ok(responseDto);
+    }
 }
