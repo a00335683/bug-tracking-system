@@ -39,7 +39,7 @@ public class IssueService {
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
         if (!project.getStatus().equals("ACTIVE")) {
-            throw new IllegalArgumentException("Cannot create issue for archived project");
+            throw new IllegalStateException("Cannot create issue for an archived project");
         }
 
         User reporter = userRepository.findById(reporterId)

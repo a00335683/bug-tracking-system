@@ -7,6 +7,7 @@ import com.tus.dtos.IssueResponseDto;
 import com.tus.dtos.UpdateIssueStatusRequestDto;
 import com.tus.services.IssueService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,30 +23,39 @@ public class IssueController {
     }
 
     // Create issue using JSON body
+    @PreAuthorize("hasRole('TESTER')")
     @PostMapping
     public ResponseEntity<IssueResponseDto> createIssue(@RequestBody IssueRequestDto requestDto) {
 
-        Issue issue = issueService.createIssue(
-                requestDto.getProjectId(),
-                requestDto.getReporterId(),
-                requestDto.getTitle(),
-                requestDto.getDescription(),
-                requestDto.getPriority()
-        );
+        try {
 
-        IssueResponseDto responseDto = new IssueResponseDto(
-                issue.getId(),
-                issue.getTitle(),
-                issue.getDescription(),
-                issue.getStatus().name(),
-                issue.getPriority().name(),
-                issue.getCreatedAt(),
-                issue.getProject().getId(),
-                issue.getReportedBy().getId(),
-                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
-        );
+            Issue issue = issueService.createIssue(
+                    requestDto.getProjectId(),
+                    requestDto.getReporterId(),
+                    requestDto.getTitle(),
+                    requestDto.getDescription(),
+                    requestDto.getPriority()
+            );
 
-        return ResponseEntity.ok(responseDto);
+            IssueResponseDto responseDto = new IssueResponseDto(
+                    issue.getId(),
+                    issue.getTitle(),
+                    issue.getDescription(),
+                    issue.getStatus().name(),
+                    issue.getPriority().name(),
+                    issue.getCreatedAt(),
+                    issue.getProject().getId(),
+                    issue.getReportedBy().getId(),
+                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
+            );
+
+            return ResponseEntity.ok(responseDto);
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(
+                    new IssueResponseDto(null, null, e.getMessage(), null, null, null, null, null, null)
+            );
+        }
     }
 
     // Get all issues
@@ -75,7 +85,7 @@ public class IssueController {
         return ResponseEntity.ok(responseList);
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/assign")
     public ResponseEntity<IssueResponseDto> assignIssue(
             @PathVariable Long id,

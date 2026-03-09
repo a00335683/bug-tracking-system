@@ -15,6 +15,7 @@ $(document).ready(function () {
             }),
             success: function (response) {
                 localStorage.setItem("token", response.token);
+                localStorage.setItem("role", response.role);
                 window.location.href = "dashboard.html";
             },
             error: function () {
