@@ -1,0 +1,17 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.card-title {
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+table th,
+table td {
+    vertical-align: middle;
+}

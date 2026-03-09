@@ -50,8 +50,29 @@ public class IssueController {
 
     // Get all issues
     @GetMapping
-    public ResponseEntity<List<Issue>> getAllIssues() {
-        return ResponseEntity.ok(issueService.getAllIssues());
+    public ResponseEntity<List<IssueResponseDto>> getAllIssues() {
+
+        List<IssueResponseDto> responseList = issueService.getAllIssues()
+                .stream()
+                .map(issue -> {
+                    IssueResponseDto dto = new IssueResponseDto(
+                            issue.getId(),
+                            issue.getTitle(),
+                            issue.getDescription(),
+                            issue.getStatus().name(),
+                            issue.getPriority().name(),
+                            issue.getCreatedAt(),
+                            issue.getProject() == null ? null : issue.getProject().getId(),
+                            issue.getReportedBy() == null ? null : issue.getReportedBy().getId(),
+                            issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
+                    );
+
+                    dto.setResolutionNote(issue.getResolutionNote());
+                    return dto;
+                })
+                .toList();
+
+        return ResponseEntity.ok(responseList);
     }
 
 
