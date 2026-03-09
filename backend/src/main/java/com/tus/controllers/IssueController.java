@@ -46,14 +46,16 @@ public class IssueController {
                     issue.getCreatedAt(),
                     issue.getProject().getId(),
                     issue.getReportedBy().getId(),
-                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
+                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
+                    issue.getResolutionNote(),
+                    issue.getAssignedTo().getUsername()
             );
 
             return ResponseEntity.ok(responseDto);
 
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(
-                    new IssueResponseDto(null, null, e.getMessage(), null, null, null, null, null, null)
+                    new IssueResponseDto(null, null, e.getMessage(), null, null, null, null, null, null,null,null)
             );
         }
     }
@@ -74,7 +76,9 @@ public class IssueController {
                             issue.getCreatedAt(),
                             issue.getProject() == null ? null : issue.getProject().getId(),
                             issue.getReportedBy() == null ? null : issue.getReportedBy().getId(),
-                            issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
+                            issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
+                            issue.getResolutionNote(),
+                            issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
                     );
 
                     dto.setResolutionNote(issue.getResolutionNote());
@@ -91,21 +95,43 @@ public class IssueController {
             @PathVariable Long id,
             @RequestBody AssignIssueRequestDto requestDto) {
 
-        Issue issue = issueService.assignIssue(id, requestDto.getDeveloperId());
+        try {
+            Issue issue = issueService.assignIssue(id, requestDto.getDeveloperId());
 
-        IssueResponseDto responseDto = new IssueResponseDto(
-                issue.getId(),
-                issue.getTitle(),
-                issue.getDescription(),
-                issue.getStatus().name(),
-                issue.getPriority().name(),
-                issue.getCreatedAt(),
-                issue.getProject().getId(),
-                issue.getReportedBy().getId(),
-                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
-        );
+            IssueResponseDto responseDto = new IssueResponseDto(
+                    issue.getId(),
+                    issue.getTitle(),
+                    issue.getDescription(),
+                    issue.getStatus().name(),
+                    issue.getPriority().name(),
+                    issue.getCreatedAt(),
+                    issue.getProject().getId(),
+                    issue.getReportedBy().getId(),
+                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
+                    issue.getResolutionNote(),
+                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
+            );
 
-        return ResponseEntity.ok(responseDto);
+            return ResponseEntity.ok(responseDto);
+
+        } catch (IllegalArgumentException e) {
+
+            IssueResponseDto errorDto = new IssueResponseDto(
+                    null,
+                    null,
+                    e.getMessage(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            return ResponseEntity.badRequest().body(errorDto);
+        }
     }
 
     @PutMapping("/{id}/status")
@@ -128,7 +154,9 @@ public class IssueController {
                 issue.getCreatedAt(),
                 issue.getProject().getId(),
                 issue.getReportedBy().getId(),
-                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
+                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
+                issue.getResolutionNote(),
+                issue.getAssignedTo().getUsername()
         );
 
         return ResponseEntity.ok(responseDto);
@@ -151,7 +179,9 @@ public class IssueController {
                         issue.getCreatedAt(),
                         issue.getProject().getId(),
                         issue.getReportedBy().getId(),
-                        issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId()
+                        issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
+                        issue.getResolutionNote(),
+                        issue.getAssignedTo().getUsername()
                 ))
                 .toList();
 

@@ -93,6 +93,29 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="assignIssueModal" tabindex="-1" aria-labelledby="assignIssueModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Issue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignIssueForm">
+                    <input type="hidden" id="assignIssueId">
+
+                    <div class="mb-3">
+                        <label for="developerId" class="form-label">Developer ID</label>
+                        <select class="form-select" id="developerId" required>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Assign Issue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="js/api.js"></script>
