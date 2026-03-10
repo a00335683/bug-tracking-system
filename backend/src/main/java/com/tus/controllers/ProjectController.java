@@ -5,6 +5,7 @@ import com.tus.dtos.ProjectRequestDto;
 import com.tus.dtos.ProjectResponseDto;
 import com.tus.services.ProjectService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
         import java.util.List;
@@ -21,6 +22,7 @@ public class ProjectController {
     }
 
     // Create new project
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProjectResponseDto> createProject(
             @RequestBody ProjectRequestDto requestDto) {
@@ -60,6 +62,7 @@ public class ProjectController {
         return ResponseEntity.ok(responseList);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/archive")
     public ResponseEntity<ProjectResponseDto> archiveProject(@PathVariable Long id) {
 
@@ -76,6 +79,7 @@ public class ProjectController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{projectId}/reactivate")
     public ResponseEntity<ProjectResponseDto> reactivateProject(@PathVariable Long projectId) {
 

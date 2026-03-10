@@ -52,9 +52,6 @@ public class Issue {
     @JoinColumn(name = "assigned_to")
     private User assignedTo;
 
-    @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
-
     public Issue() {
         this.createdAt = LocalDateTime.now();
         this.status = IssueStatus.OPEN;

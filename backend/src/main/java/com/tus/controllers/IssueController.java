@@ -48,10 +48,10 @@ public class IssueController {
                     issue.getReportedBy().getId(),
                     issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
                     issue.getResolutionNote(),
-                    issue.getAssignedTo().getUsername()
+                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
             );
 
-            return ResponseEntity.ok(responseDto);
+            return ResponseEntity.status(201).body(responseDto);
 
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(
@@ -156,7 +156,7 @@ public class IssueController {
                 issue.getReportedBy().getId(),
                 issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
                 issue.getResolutionNote(),
-                issue.getAssignedTo().getUsername()
+                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
         );
 
         return ResponseEntity.ok(responseDto);
@@ -181,7 +181,7 @@ public class IssueController {
                         issue.getReportedBy().getId(),
                         issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
                         issue.getResolutionNote(),
-                        issue.getAssignedTo().getUsername()
+                        issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
                 ))
                 .toList();
 

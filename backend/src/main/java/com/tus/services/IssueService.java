@@ -6,6 +6,8 @@ import com.tus.db.models.User;
 import com.tus.db.repos.IssueRepository;
 import com.tus.db.repos.ProjectRepository;
 import com.tus.db.repos.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.tus.enums.IssuePriority;
@@ -35,6 +37,10 @@ public class IssueService {
                              String description,
                              String priority) {
 
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Title is required");
+        }
+
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
@@ -45,7 +51,13 @@ public class IssueService {
         User reporter = userRepository.findById(reporterId)
                 .orElseThrow(() -> new IllegalArgumentException("Reporter not found"));
 
-        IssuePriority issuePriority = IssuePriority.valueOf(priority.toUpperCase());
+        IssuePriority issuePriority;
+
+        try {
+            issuePriority = IssuePriority.valueOf(priority.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid priority value");
+        }
         Issue issue = new Issue(title, description, issuePriority, project, reporter);
 
         return issueRepository.save(issue);
@@ -60,6 +72,10 @@ public class IssueService {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 
+        if (issue.getStatus() == IssueStatus.CLOSED) {
+            throw new IllegalArgumentException("Cannot assign a closed issue");
+        }
+
         User developer = userRepository.findById(developerId)
                 .orElseThrow(() -> new IllegalArgumentException("Developer not found"));
 
@@ -68,9 +84,6 @@ public class IssueService {
         }
 
         issue.setAssignedTo(developer);
-        issue.setStatus(IssueStatus.IN_PROGRESS);
-
-        Issue savedIssue = issueRepository.save(issue);
 
         return issueRepository.save(issue);
     }
@@ -88,12 +101,43 @@ public class IssueService {
         IssueStatus targetStatus = IssueStatus.valueOf(newStatus.toUpperCase());
         IssueStatus currentStatus = issue.getStatus();
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        boolean isTester = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_TESTER"));
+
+        boolean isDeveloper = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_DEVELOPER"));
+
         // Valid transitions only
         boolean allowed =
                 (currentStatus == IssueStatus.OPEN && targetStatus == IssueStatus.IN_PROGRESS) ||
                         (currentStatus == IssueStatus.IN_PROGRESS && targetStatus == IssueStatus.RESOLVED) ||
                         (currentStatus == IssueStatus.RESOLVED && targetStatus == IssueStatus.VERIFIED) ||
                         (currentStatus == IssueStatus.VERIFIED && targetStatus == IssueStatus.CLOSED);
+
+        if (targetStatus == IssueStatus.CLOSED && !isAdmin) {
+            throw new IllegalStateException("Only admin can close issues");
+        }
+
+        if (targetStatus == IssueStatus.VERIFIED && !isTester) {
+            throw new IllegalStateException("Only tester can verify issues");
+        }
+
+        if ((targetStatus == IssueStatus.IN_PROGRESS || targetStatus == IssueStatus.RESOLVED) && !isDeveloper) {
+            throw new IllegalStateException("Only developer can start or resolve issues");
+        }
+
+        if (isDeveloper) {
+            if (issue.getAssignedTo() == null ||
+                    !issue.getAssignedTo().getUsername().equals(username)) {
+                throw new IllegalStateException("You can only update issues assigned to you");
+            }
+        }
 
         if (!allowed) {
             throw new IllegalStateException("Invalid status transition: " + currentStatus + " -> " + targetStatus);
@@ -113,18 +157,44 @@ public class IssueService {
 
     public List<Issue> filterIssues(Long projectId, String status, String priority) {
 
+        List<Issue> issues = issueRepository.findAll();
+
         if (projectId != null) {
-            return issueRepository.findByProjectId(projectId);
+            issues = issues.stream()
+                    .filter(i -> i.getProject().getId().equals(projectId))
+                    .toList();
         }
 
         if (status != null && !status.isBlank()) {
-            return issueRepository.findByStatus(status.toUpperCase());
+
+            IssueStatus s;
+
+            try {
+                s = IssueStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid status value");
+            }
+
+            issues = issues.stream()
+                    .filter(i -> i.getStatus() == s)
+                    .toList();
         }
 
         if (priority != null && !priority.isBlank()) {
-            return issueRepository.findByPriority(priority.toUpperCase());
+
+            IssuePriority p;
+
+            try {
+                p = IssuePriority.valueOf(priority.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid priority value");
+            }
+
+            issues = issues.stream()
+                    .filter(i -> i.getPriority() == p)
+                    .toList();
         }
 
-        return issueRepository.findAll();
+        return issues;
     }
 }

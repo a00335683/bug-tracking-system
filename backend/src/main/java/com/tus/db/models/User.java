@@ -24,9 +24,6 @@ public class User {
     @Column(nullable = false)
     private boolean active = true;
 
-    @OneToMany(mappedBy = "user")
-    private List<Comment> comments;
-
     // Constructors
     public User() {}
 

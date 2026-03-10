@@ -24,6 +24,37 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <h4 class="mb-3">All Issues</h4>
+            <div class="row mb-3">
+
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="filterProjectId" placeholder="Project ID">
+                </div>
+
+                <div class="col-md-3">
+                    <select class="form-select" id="filterStatus">
+                        <option value="">All Status</option>
+                        <option value="OPEN">OPEN</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="RESOLVED">RESOLVED</option>
+                        <option value="VERIFIED">VERIFIED</option>
+                        <option value="CLOSED">CLOSED</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <select class="form-select" id="filterPriority">
+                        <option value="">All Priority</option>
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button class="btn btn-secondary w-100" id="filterBtn">Filter</button>
+                </div>
+
+            </div>
             <button id="createIssueBtn" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#createIssueModal">
                 Create Issue
             </button>
@@ -39,7 +70,8 @@
                         <th>Priority</th>
                         <th>Project ID</th>
                         <th>Assigned To</th>
-                        <th id="actionHeader">Action</th>
+                        <th id="assignHeader">Assign</th>
+                        <th id="statusHeader">Update Status</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
@@ -111,6 +143,44 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">Assign Issue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="updateStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Issue Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="updateStatusForm">
+
+                    <input type="hidden" id="statusIssueId">
+
+                    <div class="mb-3">
+                        <label class="form-label">New Status</label>
+                        <select class="form-select" id="newStatus" required>
+                            <option value="">Select Status</option>
+                            <option value="IN_PROGRESS">IN_PROGRESS</option>
+                            <option value="RESOLVED">RESOLVED</option>
+                            <option value="VERIFIED">VERIFIED</option>
+                            <option value="CLOSED">CLOSED</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 d-none" id="resolutionNoteGroup">
+                        <label class="form-label">Resolution Note</label>
+                        <textarea class="form-control" id="resolutionNote"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Update Status
+                    </button>
+
                 </form>
             </div>
         </div>
