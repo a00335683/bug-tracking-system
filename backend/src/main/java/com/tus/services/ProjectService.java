@@ -15,7 +15,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final IssueRepository issueRepository;
 
-    // Constructor Injection (as taught)
+    // Constructor Injection
     public ProjectService(ProjectRepository projectRepository, IssueRepository issueRepository) {
         this.projectRepository = projectRepository;
         this.issueRepository = issueRepository;
@@ -40,10 +40,11 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
+    // Archive project
     public Project archiveProject(Long projectId) {
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
         if (project.getStatus().equals("ARCHIVED")) {
             throw new IllegalArgumentException("Project is already archived");
@@ -63,6 +64,7 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
+    // Reactivate project
     public Project reactivateProject(Long projectId) {
 
         Project project = projectRepository.findById(projectId)
@@ -76,6 +78,4 @@ public class ProjectService {
 
         return projectRepository.save(project);
     }
-
-
 }

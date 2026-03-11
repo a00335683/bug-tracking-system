@@ -27,37 +27,15 @@ public class IssueController {
     @PostMapping
     public ResponseEntity<IssueResponseDto> createIssue(@RequestBody IssueRequestDto requestDto) {
 
-        try {
+        Issue issue = issueService.createIssue(
+                requestDto.getProjectId(),
+                requestDto.getReporterId(),
+                requestDto.getTitle(),
+                requestDto.getDescription(),
+                requestDto.getPriority()
+        );
 
-            Issue issue = issueService.createIssue(
-                    requestDto.getProjectId(),
-                    requestDto.getReporterId(),
-                    requestDto.getTitle(),
-                    requestDto.getDescription(),
-                    requestDto.getPriority()
-            );
-
-            IssueResponseDto responseDto = new IssueResponseDto(
-                    issue.getId(),
-                    issue.getTitle(),
-                    issue.getDescription(),
-                    issue.getStatus().name(),
-                    issue.getPriority().name(),
-                    issue.getCreatedAt(),
-                    issue.getProject().getId(),
-                    issue.getReportedBy().getId(),
-                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
-                    issue.getResolutionNote(),
-                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
-            );
-
-            return ResponseEntity.status(201).body(responseDto);
-
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(
-                    new IssueResponseDto(null, null, e.getMessage(), null, null, null, null, null, null,null,null)
-            );
-        }
+        return ResponseEntity.status(201).body(toDto(issue));
     }
 
     // Get all issues
@@ -66,24 +44,7 @@ public class IssueController {
 
         List<IssueResponseDto> responseList = issueService.getAllIssues()
                 .stream()
-                .map(issue -> {
-                    IssueResponseDto dto = new IssueResponseDto(
-                            issue.getId(),
-                            issue.getTitle(),
-                            issue.getDescription(),
-                            issue.getStatus().name(),
-                            issue.getPriority().name(),
-                            issue.getCreatedAt(),
-                            issue.getProject() == null ? null : issue.getProject().getId(),
-                            issue.getReportedBy() == null ? null : issue.getReportedBy().getId(),
-                            issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
-                            issue.getResolutionNote(),
-                            issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
-                    );
-
-                    dto.setResolutionNote(issue.getResolutionNote());
-                    return dto;
-                })
+                .map(this::toDto)
                 .toList();
 
         return ResponseEntity.ok(responseList);
@@ -95,43 +56,9 @@ public class IssueController {
             @PathVariable Long id,
             @RequestBody AssignIssueRequestDto requestDto) {
 
-        try {
-            Issue issue = issueService.assignIssue(id, requestDto.getDeveloperId());
+        Issue issue = issueService.assignIssue(id, requestDto.getDeveloperId());
 
-            IssueResponseDto responseDto = new IssueResponseDto(
-                    issue.getId(),
-                    issue.getTitle(),
-                    issue.getDescription(),
-                    issue.getStatus().name(),
-                    issue.getPriority().name(),
-                    issue.getCreatedAt(),
-                    issue.getProject().getId(),
-                    issue.getReportedBy().getId(),
-                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
-                    issue.getResolutionNote(),
-                    issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
-            );
-
-            return ResponseEntity.ok(responseDto);
-
-        } catch (IllegalArgumentException e) {
-
-            IssueResponseDto errorDto = new IssueResponseDto(
-                    null,
-                    null,
-                    e.getMessage(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-            );
-
-            return ResponseEntity.badRequest().body(errorDto);
-        }
+        return ResponseEntity.ok(toDto(issue));
     }
 
     @PutMapping("/{id}/status")
@@ -145,21 +72,7 @@ public class IssueController {
                 requestDto.getResolutionNote()
         );
 
-        IssueResponseDto responseDto = new IssueResponseDto(
-                issue.getId(),
-                issue.getTitle(),
-                issue.getDescription(),
-                issue.getStatus().name(),
-                issue.getPriority().name(),
-                issue.getCreatedAt(),
-                issue.getProject().getId(),
-                issue.getReportedBy().getId(),
-                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
-                issue.getResolutionNote(),
-                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
-        );
-
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(toDto(issue));
     }
 
     @GetMapping("/filter")
@@ -168,23 +81,28 @@ public class IssueController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String priority) {
 
-        List<IssueResponseDto> responseList = issueService.filterIssues(projectId, status, priority)
+        List<IssueResponseDto> responseList = issueService
+                .filterIssues(projectId, status, priority)
                 .stream()
-                .map(issue -> new IssueResponseDto(
-                        issue.getId(),
-                        issue.getTitle(),
-                        issue.getDescription(),
-                        issue.getStatus().name(),
-                        issue.getPriority().name(),
-                        issue.getCreatedAt(),
-                        issue.getProject().getId(),
-                        issue.getReportedBy().getId(),
-                        issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
-                        issue.getResolutionNote(),
-                        issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
-                ))
+                .map(this::toDto)
                 .toList();
 
         return ResponseEntity.ok(responseList);
+    }
+
+    private IssueResponseDto toDto(Issue issue) {
+        return new IssueResponseDto(
+                issue.getId(),
+                issue.getTitle(),
+                issue.getDescription(),
+                issue.getStatus().name(),
+                issue.getPriority().name(),
+                issue.getCreatedAt(),
+                issue.getProject() == null ? null : issue.getProject().getId(),
+                issue.getReportedBy() == null ? null : issue.getReportedBy().getId(),
+                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getId(),
+                issue.getResolutionNote(),
+                issue.getAssignedTo() == null ? null : issue.getAssignedTo().getUsername()
+        );
     }
 }

@@ -6,12 +6,11 @@ import com.tus.db.models.User;
 import com.tus.db.repos.IssueRepository;
 import com.tus.db.repos.ProjectRepository;
 import com.tus.db.repos.UserRepository;
+import com.tus.enums.IssuePriority;
+import com.tus.enums.IssueStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import com.tus.enums.IssuePriority;
-import com.tus.enums.IssueStatus;
 
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class IssueService {
         this.userRepository = userRepository;
     }
 
-    // Create new issue
+    // Create a new issue under an active project
     public Issue createIssue(Long projectId,
                              Long reporterId,
                              String title,
@@ -39,6 +38,10 @@ public class IssueService {
 
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("Title is required");
+        }
+
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Description is required");
         }
 
         Project project = projectRepository.findById(projectId)
@@ -52,21 +55,23 @@ public class IssueService {
                 .orElseThrow(() -> new IllegalArgumentException("Reporter not found"));
 
         IssuePriority issuePriority;
-
         try {
             issuePriority = IssuePriority.valueOf(priority.toUpperCase());
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid priority value");
         }
+
         Issue issue = new Issue(title, description, issuePriority, project, reporter);
 
         return issueRepository.save(issue);
     }
 
+    // Get all issues
     public List<Issue> getAllIssues() {
         return issueRepository.findAll();
     }
 
+    // Assign an issue to a developer
     public Issue assignIssue(Long issueId, Long developerId) {
 
         Issue issue = issueRepository.findById(issueId)
@@ -88,17 +93,24 @@ public class IssueService {
         return issueRepository.save(issue);
     }
 
+    // Update issue status based on role and workflow rules
     public Issue updateStatus(Long issueId, String newStatus, String resolutionNote) {
 
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 
-        // closed issues cannot change
+        // Once an issue is closed, it should not be changed again
         if (issue.getStatus() == IssueStatus.CLOSED) {
             throw new IllegalArgumentException("Closed issues cannot be modified");
         }
 
-        IssueStatus targetStatus = IssueStatus.valueOf(newStatus.toUpperCase());
+        IssueStatus targetStatus;
+        try {
+            targetStatus = IssueStatus.valueOf(newStatus.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid status value");
+        }
+
         IssueStatus currentStatus = issue.getStatus();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -113,25 +125,33 @@ public class IssueService {
         boolean isDeveloper = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_DEVELOPER"));
 
-        // Valid transitions only
+        // Only allow the correct next step in the workflow
         boolean allowed =
                 (currentStatus == IssueStatus.OPEN && targetStatus == IssueStatus.IN_PROGRESS) ||
                         (currentStatus == IssueStatus.IN_PROGRESS && targetStatus == IssueStatus.RESOLVED) ||
                         (currentStatus == IssueStatus.RESOLVED && targetStatus == IssueStatus.VERIFIED) ||
                         (currentStatus == IssueStatus.VERIFIED && targetStatus == IssueStatus.CLOSED);
 
+        if (!allowed) {
+            throw new IllegalStateException("Invalid status transition: " + currentStatus + " -> " + targetStatus);
+        }
+
+        // Only admin can close issues
         if (targetStatus == IssueStatus.CLOSED && !isAdmin) {
             throw new IllegalStateException("Only admin can close issues");
         }
 
+        // Only tester can verify resolved issues
         if (targetStatus == IssueStatus.VERIFIED && !isTester) {
             throw new IllegalStateException("Only tester can verify issues");
         }
 
+        // Only developer can move issue into progress or resolve it
         if ((targetStatus == IssueStatus.IN_PROGRESS || targetStatus == IssueStatus.RESOLVED) && !isDeveloper) {
             throw new IllegalStateException("Only developer can start or resolve issues");
         }
 
+        // Developer should only work on issues assigned to them
         if (isDeveloper) {
             if (issue.getAssignedTo() == null ||
                     !issue.getAssignedTo().getUsername().equals(username)) {
@@ -139,59 +159,53 @@ public class IssueService {
             }
         }
 
-        if (!allowed) {
-            throw new IllegalStateException("Invalid status transition: " + currentStatus + " -> " + targetStatus);
-        }
-
-        if (targetStatus == IssueStatus.RESOLVED && (resolutionNote == null || resolutionNote.isBlank())) {
-            throw new IllegalArgumentException("Resolution note is required when resolving an issue");
-        }
-
+        // Resolution note is needed when resolving an issue
         if (targetStatus == IssueStatus.RESOLVED) {
+            if (resolutionNote == null || resolutionNote.isBlank()) {
+                throw new IllegalArgumentException("Resolution note is required when resolving an issue");
+            }
             issue.setResolutionNote(resolutionNote);
         }
 
         issue.setStatus(targetStatus);
+
         return issueRepository.save(issue);
     }
 
+    // Filter issues by project, status, and priority
     public List<Issue> filterIssues(Long projectId, String status, String priority) {
 
         List<Issue> issues = issueRepository.findAll();
 
         if (projectId != null) {
             issues = issues.stream()
-                    .filter(i -> i.getProject().getId().equals(projectId))
+                    .filter(issue -> issue.getProject().getId().equals(projectId))
                     .toList();
         }
 
         if (status != null && !status.isBlank()) {
-
-            IssueStatus s;
-
+            IssueStatus issueStatus;
             try {
-                s = IssueStatus.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException e) {
+                issueStatus = IssueStatus.valueOf(status.toUpperCase());
+            } catch (Exception e) {
                 throw new IllegalArgumentException("Invalid status value");
             }
 
             issues = issues.stream()
-                    .filter(i -> i.getStatus() == s)
+                    .filter(issue -> issue.getStatus() == issueStatus)
                     .toList();
         }
 
         if (priority != null && !priority.isBlank()) {
-
-            IssuePriority p;
-
+            IssuePriority issuePriority;
             try {
-                p = IssuePriority.valueOf(priority.toUpperCase());
-            } catch (IllegalArgumentException e) {
+                issuePriority = IssuePriority.valueOf(priority.toUpperCase());
+            } catch (Exception e) {
                 throw new IllegalArgumentException("Invalid priority value");
             }
 
             issues = issues.stream()
-                    .filter(i -> i.getPriority() == p)
+                    .filter(issue -> issue.getPriority() == issuePriority)
                     .toList();
         }
 

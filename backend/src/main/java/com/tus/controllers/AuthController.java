@@ -20,15 +20,19 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository) {
+    public AuthController(AuthenticationManager authenticationManager,
+                          JwtUtil jwtUtil,
+                          UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
     }
 
+    // Handles user login and returns a JWT token
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDto requestDto) {
 
+        // Authenticate username and password
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         requestDto.getUsername(),
@@ -36,9 +40,11 @@ public class AuthController {
                 )
         );
 
+        // Generate JWT token after successful login
         String token = jwtUtil.generateToken(requestDto.getUsername());
 
-        User user = userRepository.findByUsername(requestDto.getUsername()).orElseThrow();
+        User user = userRepository.findByUsername(requestDto.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Map<String, String> response = new HashMap<>();
         response.put("token", token);

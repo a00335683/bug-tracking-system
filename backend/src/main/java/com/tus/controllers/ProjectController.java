@@ -4,6 +4,7 @@ import com.tus.db.models.Project;
 import com.tus.dtos.ProjectRequestDto;
 import com.tus.dtos.ProjectResponseDto;
 import com.tus.services.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,38 +26,23 @@ public class ProjectController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProjectResponseDto> createProject(
-            @RequestBody ProjectRequestDto requestDto) {
+            @Valid @RequestBody ProjectRequestDto requestDto) {
 
         Project project = projectService.createProject(
                 requestDto.getName(),
                 requestDto.getDescription()
         );
 
-        ProjectResponseDto responseDto = new ProjectResponseDto(
-                project.getId(),
-                project.getName(),
-                project.getDescription(),
-                project.getStatus(),
-                project.getCreatedAt()
-        );
-
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.status(201).body(toDto(project));
     }
 
     // Get all projects
     @GetMapping
     public ResponseEntity<List<ProjectResponseDto>> getAllProjects() {
 
-        List<Project> projects = projectService.getAllProjects();
-
-        List<ProjectResponseDto> responseList = projects.stream()
-                .map(project -> new ProjectResponseDto(
-                        project.getId(),
-                        project.getName(),
-                        project.getDescription(),
-                        project.getStatus(),
-                        project.getCreatedAt()
-                ))
+        List<ProjectResponseDto> responseList = projectService.getAllProjects()
+                .stream()
+                .map(this::toDto)
                 .toList();
 
         return ResponseEntity.ok(responseList);
@@ -68,15 +54,7 @@ public class ProjectController {
 
         Project project = projectService.archiveProject(id);
 
-        ProjectResponseDto responseDto = new ProjectResponseDto(
-                project.getId(),
-                project.getName(),
-                project.getDescription(),
-                project.getStatus(),
-                project.getCreatedAt()
-        );
-
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(toDto(project));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -85,14 +63,16 @@ public class ProjectController {
 
         Project project = projectService.reactivateProject(projectId);
 
-        ProjectResponseDto responseDto = new ProjectResponseDto(
+        return ResponseEntity.ok(toDto(project));
+    }
+
+    private ProjectResponseDto toDto(Project project) {
+        return new ProjectResponseDto(
                 project.getId(),
                 project.getName(),
                 project.getDescription(),
                 project.getStatus(),
                 project.getCreatedAt()
         );
-
-        return ResponseEntity.ok(responseDto);
     }
 }
