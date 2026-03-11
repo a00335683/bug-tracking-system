@@ -19,6 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    // Loads user information from the database for Spring Security authentication
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -28,10 +29,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                user.isActive(),
-                true,
-                true,
-                true,
+                user.isActive(),   // account enabled
+                true,              // account not expired
+                true,              // credentials not expired
+                true,              // account not locked
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
     }

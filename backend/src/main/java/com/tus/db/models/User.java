@@ -2,31 +2,35 @@ package com.tus.db.models;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 @Entity
 @Table(name = "users")
 public class User {
 
+    // Primary key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @Column(nullable = false, unique = true)
     private String username;
 
+    // Password will be stored encrypted (BCrypt)
     @Column(nullable = false)
     private String password;
 
+    // Role defines permissions (ADMIN, DEVELOPER, TESTER)
     @Column(nullable = false)
     private String role;
 
+    // Indicates if the account is active or disabled
     @Column(nullable = false)
     private boolean active = true;
 
-    // Constructors
+    // Default constructor required by JPA
     public User() {}
 
+    // Constructor used when creating users
     public User(String username, String password, String role, boolean active) {
         this.username = username;
         this.password = password;
@@ -34,7 +38,7 @@ public class User {
         this.active = active;
     }
 
-    // Getters & Setters
+    // Getters and setters
 
     public Long getId() {
         return id;

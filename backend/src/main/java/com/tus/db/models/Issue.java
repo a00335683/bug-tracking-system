@@ -4,10 +4,6 @@ import com.tus.enums.IssuePriority;
 import com.tus.enums.IssueStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
-
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 
 @Entity
 @Table(name = "issues")

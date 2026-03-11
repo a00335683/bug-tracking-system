@@ -17,6 +17,7 @@ public class Project {
     @Column(length = 1000)
     private String description;
 
+    // Project status: ACTIVE or ARCHIVED
     @Column(nullable = false)
     private String status; // ACTIVE or ARCHIVED
 

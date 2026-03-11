@@ -15,34 +15,31 @@ public class DataInitializer {
         return args -> {
 
             if (userRepository.findByUsername("admin").isEmpty()) {
-
-                User admin = new User(
+                userRepository.save(new User(
                         "admin",
                         passwordEncoder.encode("password"),
                         "ADMIN",
                         true
-                );
-
-                userRepository.save(admin);
+                ));
             }
 
-            User tester = userRepository.findByUsername("tester1")
-                    .orElse(new User());
+            if (userRepository.findByUsername("tester1").isEmpty()) {
+                userRepository.save(new User(
+                        "tester1",
+                        passwordEncoder.encode("pass"),
+                        "TESTER",
+                        true
+                ));
+            }
 
-            tester.setUsername("tester1");
-            tester.setPassword(passwordEncoder.encode("pass"));
-            tester.setRole("TESTER");
-            tester.setActive(true);
-            userRepository.save(tester);
-
-            User developer = userRepository.findByUsername("dev1")
-                    .orElse(new User());
-
-            developer.setUsername("dev1");
-            developer.setPassword(passwordEncoder.encode("pass"));
-            developer.setRole("DEVELOPER");
-            developer.setActive(true);
-            userRepository.save(developer);
+            if (userRepository.findByUsername("dev1").isEmpty()) {
+                userRepository.save(new User(
+                        "dev1",
+                        passwordEncoder.encode("pass"),
+                        "DEVELOPER",
+                        true
+                ));
+            }
         };
     }
 }
