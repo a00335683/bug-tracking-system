@@ -1,34 +1,49 @@
 package com.tus.controllers;
 
-import com.tus.dtos.LoginRequest;
-import com.tus.security.JwtUtil;
-import org.springframework.web.bind.annotation.*;
 import com.tus.db.models.User;
 import com.tus.db.repos.UserRepository;
+import com.tus.dtos.LoginRequestDto;
+import com.tus.security.JwtUtil;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    public AuthController(UserRepository userRepository,
-                          JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository) {
+        this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDto requestDto) {
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid username"));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        requestDto.getUsername(),
+                        requestDto.getPassword()
+                )
+        );
 
-        if (!user.getPassword().equals(request.getPassword())) {
-            throw new RuntimeException("Invalid password");
-        }
+        String token = jwtUtil.generateToken(requestDto.getUsername());
 
-        return jwtUtil.generateToken(user.getUsername(), user.getRole());
+        User user = userRepository.findByUsername(requestDto.getUsername()).orElseThrow();
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        response.put("role", user.getRole());
+
+        return ResponseEntity.ok(response);
     }
 }

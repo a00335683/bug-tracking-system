@@ -1,7 +1,11 @@
 package com.tus.db.models;
 
+import com.tus.enums.IssuePriority;
+import com.tus.enums.IssueStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
@@ -29,6 +33,9 @@ public class Issue {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(length = 1000)
+    private String resolutionNote;
 
     // Many issues belong to one project
     @ManyToOne
@@ -84,4 +91,12 @@ public class Issue {
     public User getAssignedTo() { return assignedTo; }
 
     public void setAssignedTo(User assignedTo) { this.assignedTo = assignedTo; }
+
+    public String getResolutionNote() {
+        return resolutionNote;
+    }
+
+    public void setResolutionNote(String resolutionNote) {
+        this.resolutionNote = resolutionNote;
+    }
 }

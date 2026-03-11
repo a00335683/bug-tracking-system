@@ -1,4 +1,4 @@
-package com.tus.db.models;
+package com.tus.enums;
 
 public enum IssueStatus {
     OPEN,
