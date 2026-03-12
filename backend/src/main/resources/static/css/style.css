@@ -1,5 +1,22 @@
+/* Global font */
 body {
     font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Navbar */
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Page headings */
+h3 {
+    font-weight: bold;
+}
+
+/* Cards */
+.card {
+    border-radius: 10px;
 }
 
 .card-title {
@@ -11,7 +28,51 @@ body {
     font-weight: bold;
 }
 
+/* Tables */
 table th,
 table td {
     vertical-align: middle;
+}
+
+/* DataTables header */
+table.dataTable thead {
+    background-color: #343a40;
+    color: white;
+}
+
+/* Buttons spacing */
+.btn {
+    border-radius: 6px;
+}
+
+/* Modal header styling */
+.modal-header {
+    background-color: #343a40;
+    color: white;
+}
+
+/* Container spacing */
+.container {
+    max-width: 1100px;
+}
+
+/* Better card shadow */
+.card {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* Smooth hover effect for buttons */
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Table row hover highlight */
+.table-hover tbody tr:hover {
+    background-color: #f1f3f5;
 }

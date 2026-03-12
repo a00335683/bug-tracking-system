@@ -8,11 +8,9 @@ import java.util.List;
 
 public interface IssueRepository extends JpaRepository<Issue, Long> {
 
-    List<Issue> findByProjectId(Long projectId);
-
-    List<Issue> findByStatus(String status);
-
+    // Get all issues for a specific project
     List<Issue> findByProject(Project project);
 
-    List<Issue> findByPriority(String priority);
+    // Alternative lookup by project ID
+    List<Issue> findByProjectId(Long projectId);
 }

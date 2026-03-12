@@ -88,6 +88,12 @@ public class IssueService {
             throw new IllegalArgumentException("Selected user is not a developer");
         }
 
+        // Prevent assigning the same developer again
+        if (issue.getAssignedTo() != null &&
+                issue.getAssignedTo().getId().equals(developerId)) {
+            throw new IllegalArgumentException("Issue is already assigned to this developer");
+        }
+
         issue.setAssignedTo(developer);
 
         return issueRepository.save(issue);
