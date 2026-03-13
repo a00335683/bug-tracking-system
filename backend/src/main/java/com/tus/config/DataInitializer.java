@@ -9,39 +9,36 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@Profile("!test")
+@Profile({"dev", "test"})
 public class DataInitializer {
 
     @Bean
     CommandLineRunner initUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
+            userRepository.findByUsername("admin").ifPresent(userRepository::delete);
+            userRepository.findByUsername("tester1").ifPresent(userRepository::delete);
+            userRepository.findByUsername("dev1").ifPresent(userRepository::delete);
 
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                userRepository.save(new User(
-                        "admin",
-                        passwordEncoder.encode("password"),
-                        "ADMIN",
-                        true
-                ));
-            }
+            userRepository.save(new User(
+                    "admin",
+                    passwordEncoder.encode("password"),
+                    "ADMIN",
+                    true
+            ));
 
-            if (userRepository.findByUsername("tester1").isEmpty()) {
-                userRepository.save(new User(
-                        "tester1",
-                        passwordEncoder.encode("pass"),
-                        "TESTER",
-                        true
-                ));
-            }
+            userRepository.save(new User(
+                    "tester1",
+                    passwordEncoder.encode("tester123"),
+                    "TESTER",
+                    true
+            ));
 
-            if (userRepository.findByUsername("dev1").isEmpty()) {
-                userRepository.save(new User(
-                        "dev1",
-                        passwordEncoder.encode("pass"),
-                        "DEVELOPER",
-                        true
-                ));
-            }
+            userRepository.save(new User(
+                    "dev1",
+                    passwordEncoder.encode("pass"),
+                    "DEVELOPER",
+                    true
+            ));
         };
     }
 }
