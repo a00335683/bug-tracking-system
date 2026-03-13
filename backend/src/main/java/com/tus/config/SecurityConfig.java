@@ -37,10 +37,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/index.html",
-                                "/api/auth/**",
                                 "/login.html",
-                                "/dashboard.html",
-                                "/issues.html",
+                                "/views/**",
+                                "/api/auth/**",
                                 "/css/**",
                                 "/js/**",
                                 "/favicon.ico",
@@ -48,7 +47,6 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // JWT filter runs before username/password authentication
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

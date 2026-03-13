@@ -1,4 +1,5 @@
 $(document).ready(function () {
+
     $("#loginForm").on("submit", function (event) {
         event.preventDefault();
 
@@ -13,11 +14,16 @@ $(document).ready(function () {
                 username: username,
                 password: password
             }),
+
             success: function (response) {
+
                 localStorage.setItem("token", response.token);
                 localStorage.setItem("role", response.role);
-                window.location.href = "dashboard.html";
+
+                // redirect to SPA
+                window.location.href = "index.html";
             },
+
             error: function () {
                 $("#errorMessage")
                     .removeClass("d-none")
@@ -25,4 +31,5 @@ $(document).ready(function () {
             }
         });
     });
+
 });

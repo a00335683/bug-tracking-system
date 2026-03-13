@@ -1,0 +1,60 @@
+<h3 class="text-primary mb-4">Projects</h3>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">All Projects</h5>
+            <button id="createProjectBtn"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createProjectModal">
+                <i class="bi bi-plus-circle"></i> Create Project
+            </button>
+        </div>
+
+        <div id="projectMessage" class="alert d-none"></div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle" id="projectsTable">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Create Project</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="createProjectForm">
+                    <div class="mb-3">
+                        <label for="projectName" class="form-label">Project Name</label>
+                        <input type="text" id="projectName" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="projectDescription" class="form-label">Description</label>
+                        <textarea id="projectDescription" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

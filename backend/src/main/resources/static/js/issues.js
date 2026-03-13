@@ -1,4 +1,4 @@
-$(document).ready(function () {
+function initIssues() {
     const token = getToken();
 
     if (!token) {
@@ -88,18 +88,18 @@ $(document).ready(function () {
 
         if (role === "ADMIN") {
             options.columnDefs = [
-                { targets: 0, searchable: false }, // ID
-                { targets: 4, searchable: false }, // Project ID
-                { targets: 5, searchable: false }, // Assigned To
-                { targets: 6, searchable: false, orderable: false }, // Assign
-                { targets: 7, searchable: false, orderable: false }  // Update Status
+                { targets: 0, searchable: false },
+                { targets: 4, searchable: false },
+                { targets: 5, searchable: false },
+                { targets: 6, searchable: false, orderable: false },
+                { targets: 7, searchable: false, orderable: false }
             ];
         } else {
             options.columnDefs = [
-                { targets: 0, searchable: false }, // ID
-                { targets: 4, searchable: false }, // Project ID
-                { targets: 5, searchable: false }, // Assigned To
-                { targets: 6, searchable: false, orderable: false }  // Update Status
+                { targets: 0, searchable: false },
+                { targets: 4, searchable: false },
+                { targets: 5, searchable: false },
+                { targets: 6, searchable: false, orderable: false }
             ];
         }
 
@@ -145,7 +145,7 @@ $(document).ready(function () {
 
     loadIssues("/api/issues");
 
-    $(document).on("click", ".assign-btn", function () {
+    $(document).off("click", ".assign-btn").on("click", ".assign-btn", function () {
         const issueId = $(this).data("id");
         $("#assignIssueId").val(issueId);
 
@@ -153,7 +153,7 @@ $(document).ready(function () {
         modal.show();
     });
 
-    $(document).on("click", ".status-btn", function () {
+    $(document).off("click", ".status-btn").on("click", ".status-btn", function () {
         const issueId = $(this).data("id");
         const currentStatus = $(this).data("status");
 
@@ -186,7 +186,7 @@ $(document).ready(function () {
         modal.show();
     });
 
-    $(document).on("change", "#newStatus", function () {
+    $(document).off("change", "#newStatus").on("change", "#newStatus", function () {
         const status = $(this).val();
 
         if (status === "RESOLVED") {
@@ -196,7 +196,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#assignIssueForm").on("submit", function (event) {
+    $(document).off("submit", "#assignIssueForm").on("submit", "#assignIssueForm", function (event) {
         event.preventDefault();
 
         const issueId = $("#assignIssueId").val();
@@ -239,7 +239,7 @@ $(document).ready(function () {
         });
     });
 
-    $("#updateStatusForm").on("submit", function (event) {
+    $(document).off("submit", "#updateStatusForm").on("submit", "#updateStatusForm", function (event) {
         event.preventDefault();
 
         const issueId = $("#statusIssueId").val();
@@ -289,7 +289,7 @@ $(document).ready(function () {
         });
     });
 
-    $("#createIssueForm").on("submit", function (event) {
+    $(document).off("submit", "#createIssueForm").on("submit", "#createIssueForm", function (event) {
         event.preventDefault();
 
         const issueData = {
@@ -332,7 +332,7 @@ $(document).ready(function () {
         });
     });
 
-    $("#filterBtn").on("click", function () {
+    $(document).off("click", "#filterBtn").on("click", "#filterBtn", function () {
         const projectId = $("#filterProjectId").val();
         const status = $("#filterStatus").val();
         const priority = $("#filterPriority").val();
@@ -358,4 +358,4 @@ $(document).ready(function () {
 
         loadIssues("/api/issues/filter?" + params.toString());
     });
-});
+}

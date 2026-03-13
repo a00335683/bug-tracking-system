@@ -1,4 +1,4 @@
-$(document).ready(function () {
+function initDashboard() {
     const token = getToken();
 
     if (!token) {
@@ -29,4 +29,4 @@ $(document).ready(function () {
             logout();
         }
     });
-});
+}
