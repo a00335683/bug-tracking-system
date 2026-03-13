@@ -53,7 +53,7 @@ public class ProjectService {
         List<Issue> issues = issueRepository.findByProject(project);
 
         boolean allClosed = issues.stream()
-                .allMatch(issue -> issue.getStatus().equals("CLOSED"));
+                .allMatch(issue -> issue.getStatus() == com.tus.enums.IssueStatus.CLOSED);
 
         if (!allClosed) {
             throw new IllegalArgumentException("Project cannot be archived until all issues are CLOSED");

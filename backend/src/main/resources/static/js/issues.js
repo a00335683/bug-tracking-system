@@ -145,6 +145,11 @@ function initIssues() {
 
     loadIssues("/api/issues");
 
+    $(document).off("click", "#createIssueBtn").on("click", "#createIssueBtn", function () {
+        const modal = new bootstrap.Modal(document.getElementById("createIssueModal"));
+        modal.show();
+    });
+
     $(document).off("click", ".assign-btn").on("click", ".assign-btn", function () {
         const issueId = $(this).data("id");
         $("#assignIssueId").val(issueId);
