@@ -28,7 +28,7 @@ public class KarateTest {
 
     @Karate.Test
     Karate testAll() {
-        return Karate.run("classpath:karate")
+        return Karate.run("classpath:com/tus/karate")
                 .systemProperty("karate.baseUrl", "http://localhost:" + port);
     }
 }
