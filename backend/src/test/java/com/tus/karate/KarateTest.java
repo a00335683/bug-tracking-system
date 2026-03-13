@@ -1,4 +1,4 @@
-package karate;
+package com.tus.karate;
 
 import com.intuit.karate.junit5.Karate;
 import com.tus.*;
