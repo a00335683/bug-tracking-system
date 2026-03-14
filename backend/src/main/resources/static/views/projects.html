@@ -1,13 +1,16 @@
-<h3 class="text-primary mb-4">Projects</h3>
+<h3 class="mb-4" style="color:#6f2d5c;">Projects</h3>
 
-<div class="card shadow-sm border-0">
+<div class="card shadow-sm border-0" style="background: linear-gradient(135deg,#fdf2f8,#f3e8ff); border-radius:16px;">
     <div class="card-body">
+
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title mb-0">All Projects</h5>
+            <h5 class="card-title mb-0" style="color:#6f2d5c;">All Projects</h5>
+
             <button id="createProjectBtn"
-                    class="btn btn-primary"
+                    class="btn"
                     data-bs-toggle="modal"
-                    data-bs-target="#createProjectModal">
+                    data-bs-target="#createProjectModal"
+                    style="background-color:#be185d; color:white; border:none; border-radius:10px;">
                 <i class="bi bi-plus-circle"></i> Create Project
             </button>
         </div>
@@ -15,8 +18,10 @@
         <div id="projectMessage" class="alert d-none"></div>
 
         <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover align-middle" id="projectsTable">
-                <thead class="table-dark">
+
+            <table class="table table-hover align-middle" id="projectsTable">
+
+                <thead style="background:linear-gradient(90deg,#6f2d5c,#be185d); color:white;">
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
@@ -26,34 +31,57 @@
                     <th>Action</th>
                 </tr>
                 </thead>
+
                 <tbody></tbody>
+
             </table>
+
         </div>
+
     </div>
 </div>
 
+
 <div class="modal fade" id="createProjectModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
+        <div class="modal-content" style="border-radius:14px;">
+
+            <div class="modal-header text-white"
+                 style="background:linear-gradient(90deg,#6f2d5c,#be185d);">
                 <h5 class="modal-title">Create Project</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
+
                 <form id="createProjectForm">
+
                     <div class="mb-3">
                         <label for="projectName" class="form-label">Project Name</label>
-                        <input type="text" id="projectName" class="form-control" required>
+                        <input type="text"
+                               id="projectName"
+                               class="form-control"
+                               required
+                               style="border-radius:10px; border:1px solid #e9d5ff;">
                     </div>
 
                     <div class="mb-3">
                         <label for="projectDescription" class="form-label">Description</label>
-                        <textarea id="projectDescription" class="form-control" rows="3" required></textarea>
+                        <textarea id="projectDescription"
+                                  class="form-control"
+                                  rows="3"
+                                  required
+                                  style="border-radius:10px; border:1px solid #e9d5ff;"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Save Project</button>
+                    <button type="submit"
+                            class="btn"
+                            style="background-color:#6f2d5c; color:white; border:none; border-radius:10px;">
+                        Save Project
+                    </button>
+
                 </form>
+
             </div>
         </div>
     </div>

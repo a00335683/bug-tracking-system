@@ -1,16 +1,23 @@
-<h3 class="text-primary mb-4">Issues</h3>
+<h3 class="mb-4" style="color:#6f2d5c;">Issues</h3>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body">
-        <h5 class="card-title mb-3">All Issues</h5>
+<div class="card shadow-sm border-0" style="background: linear-gradient(135deg,#fdf2f8,#f3e8ff); border-radius:20px;">
+    <div class="card-body p-4">
+
+        <h5 class="card-title mb-4 fw-semibold" style="color:#6f2d5c;">All Issues</h5>
 
         <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <input type="number" class="form-control" id="filterProjectId" placeholder="Project ID">
+                <input type="number"
+                       class="form-control"
+                       id="filterProjectId"
+                       placeholder="Project ID"
+                       style="border-radius:12px; border:1px solid #e9d5ff; min-height:48px;">
             </div>
 
             <div class="col-md-3">
-                <select class="form-select" id="filterStatus">
+                <select class="form-select"
+                        id="filterStatus"
+                        style="border-radius:12px; border:1px solid #e9d5ff; min-height:48px;">
                     <option value="">Status</option>
                     <option value="OPEN">OPEN</option>
                     <option value="IN_PROGRESS">IN_PROGRESS</option>
@@ -21,7 +28,9 @@
             </div>
 
             <div class="col-md-3">
-                <select class="form-select" id="filterPriority">
+                <select class="form-select"
+                        id="filterPriority"
+                        style="border-radius:12px; border:1px solid #e9d5ff; min-height:48px;">
                     <option value="">Priority</option>
                     <option value="LOW">LOW</option>
                     <option value="MEDIUM">MEDIUM</option>
@@ -30,28 +39,34 @@
             </div>
 
             <div class="col-md-3 d-grid">
-                <button class="btn btn-primary" id="filterBtn">Apply Filter</button>
+                <button id="filterBtn"
+                        class="btn"
+                        style="background-color:#7a2e68; color:white; border:none; border-radius:12px; min-height:48px;">
+                    Apply Filter
+                </button>
             </div>
         </div>
 
-        <button id="createIssueBtn" class="btn btn-primary mb-3">
-            <i class="bi bi-plus-circle"></i> Create Issue
+        <button id="createIssueBtn"
+                class="btn mb-4"
+                style="background-color:#be185d; color:white; border:none; border-radius:12px;">
+            <i class="bi bi-plus-circle me-1"></i> Create Issue
         </button>
 
         <div id="issueMessage" class="alert alert-success d-none"></div>
 
         <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover align-middle" id="issuesTable">
-                <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Project ID</th>
-                    <th>Assigned To</th>
-                    <th id="assignHeader">Assign</th>
-                    <th id="statusHeader">Update Status</th>
+            <table class="table align-middle mb-0" id="issuesTable" style="background:white; border-radius:16px; overflow:hidden;">
+                <thead>
+                <tr style="background:linear-gradient(90deg,#6f2d5c,#be185d); color:white;">
+                    <th class="py-3">ID</th>
+                    <th class="py-3">Title</th>
+                    <th class="py-3">Status</th>
+                    <th class="py-3">Priority</th>
+                    <th class="py-3">Project ID</th>
+                    <th class="py-3">Assigned To</th>
+                    <th class="py-3" id="assignHeader">Assign</th>
+                    <th class="py-3" id="statusHeader">Update Status</th>
                 </tr>
                 </thead>
                 <tbody></tbody>
@@ -63,8 +78,8 @@
 <!-- Create Issue Modal -->
 <div class="modal fade" id="createIssueModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
+        <div class="modal-content border-0" style="border-radius:16px;">
+            <div class="modal-header text-white" style="background:linear-gradient(90deg,#6f2d5c,#be185d);">
                 <h5 class="modal-title">Create Issue</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -73,27 +88,27 @@
                 <form id="createIssueForm">
                     <div class="mb-3">
                         <label class="form-label">Project ID</label>
-                        <input type="number" class="form-control" id="projectId" required>
+                        <input type="number" class="form-control" id="projectId" required style="border-radius:10px; border:1px solid #e9d5ff;">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Reporter ID</label>
-                        <input type="number" class="form-control" id="reporterId" required>
+                        <input type="number" class="form-control" id="reporterId" required style="border-radius:10px; border:1px solid #e9d5ff;">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Title</label>
-                        <input type="text" class="form-control" id="issueTitle" required>
+                        <input type="text" class="form-control" id="issueTitle" required style="border-radius:10px; border:1px solid #e9d5ff;">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea class="form-control" id="issueDescription" rows="3" required></textarea>
+                        <textarea class="form-control" id="issueDescription" rows="3" required style="border-radius:10px; border:1px solid #e9d5ff;"></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Priority</label>
-                        <select class="form-select" id="issuePriority" required>
+                        <select class="form-select" id="issuePriority" required style="border-radius:10px; border:1px solid #e9d5ff;">
                             <option value="">Select Priority</option>
                             <option value="LOW">LOW</option>
                             <option value="MEDIUM">MEDIUM</option>
@@ -101,7 +116,9 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Save Issue</button>
+                    <button type="submit" class="btn" style="background-color:#6f2d5c; color:white; border:none; border-radius:10px;">
+                        Save Issue
+                    </button>
                 </form>
             </div>
         </div>
@@ -111,8 +128,8 @@
 <!-- Assign Issue Modal -->
 <div class="modal fade" id="assignIssueModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
+        <div class="modal-content border-0" style="border-radius:16px;">
+            <div class="modal-header text-white" style="background:linear-gradient(90deg,#6f2d5c,#be185d);">
                 <h5 class="modal-title">Assign Issue</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -123,10 +140,12 @@
 
                     <div class="mb-3">
                         <label class="form-label">Developer</label>
-                        <select class="form-select" id="developerId" required></select>
+                        <select class="form-select" id="developerId" required style="border-radius:10px; border:1px solid #e9d5ff;"></select>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Assign Issue</button>
+                    <button type="submit" class="btn" style="background-color:#6f2d5c; color:white; border:none; border-radius:10px;">
+                        Assign Issue
+                    </button>
                 </form>
             </div>
         </div>
@@ -136,8 +155,8 @@
 <!-- Update Status Modal -->
 <div class="modal fade" id="updateStatusModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
+        <div class="modal-content border-0" style="border-radius:16px;">
+            <div class="modal-header text-white" style="background:linear-gradient(90deg,#6f2d5c,#be185d);">
                 <h5 class="modal-title">Update Issue Status</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -148,7 +167,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">New Status</label>
-                        <select class="form-select" id="newStatus" required>
+                        <select class="form-select" id="newStatus" required style="border-radius:10px; border:1px solid #e9d5ff;">
                             <option value="">Select Status</option>
                             <option value="IN_PROGRESS">IN_PROGRESS</option>
                             <option value="RESOLVED">RESOLVED</option>
@@ -159,10 +178,12 @@
 
                     <div class="mb-3 d-none" id="resolutionNoteGroup">
                         <label class="form-label">Resolution Note</label>
-                        <textarea class="form-control" id="resolutionNote"></textarea>
+                        <textarea class="form-control" id="resolutionNote" style="border-radius:10px; border:1px solid #e9d5ff;"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Update Status</button>
+                    <button type="submit" class="btn" style="background-color:#6f2d5c; color:white; border:none; border-radius:10px;">
+                        Update Status
+                    </button>
                 </form>
             </div>
         </div>

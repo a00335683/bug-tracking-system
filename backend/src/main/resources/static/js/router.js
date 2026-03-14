@@ -36,4 +36,12 @@ $(document).ready(function () {
     $(document).on("click", "#goIssuesBtn", function () {
         loadPage("issues.html", initIssues);
     });
+
+    $(document).on("click", "#showGraphBtn", function () {
+        loadPage("visuals.html", initVisuals);
+    });
+
+    $(document).on("click", "#backToDashboardBtn", function () {
+        loadPage("dashboard.html", initDashboard);
+    });
 });

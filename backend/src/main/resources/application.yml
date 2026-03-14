@@ -1,6 +1,8 @@
 spring:
   application:
     name: bug-tracker
+  profiles:
+      active: dev
 
   datasource:
     url: jdbc:mysql://localhost:3306/bugtracker
@@ -9,7 +11,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     defer-datasource-initialization: true
     show-sql: true
 
@@ -22,3 +24,5 @@ server:
   error:
     include-stacktrace: always
     include-exception: true
+
+

@@ -59,7 +59,15 @@ function initIssues() {
         }
 
         if (canUpdateStatus) {
-            statusButton = `<button class="btn btn-sm btn-warning status-btn" data-id="${issue.id}" data-status="${issue.status}">Update Status</button>`;
+            statusButton = `
+                <button
+                    class="btn btn-sm status-btn"
+                    data-id="${issue.id}"
+                    data-status="${issue.status}"
+                    style="background:#be185d; color:white; border:none; border-radius:10px;">
+                    Update Status
+                </button>
+            `;
         } else {
             statusButton = `<span class="text-muted">Not allowed</span>`;
         }
@@ -73,7 +81,14 @@ function initIssues() {
                 <td>${issue.projectId}</td>
                 <td>${issue.assignedToUsername ?? "-"}</td>
                 ${role === "ADMIN"
-            ? `<td><button class="btn btn-sm btn-primary assign-btn" data-id="${issue.id}">Assign</button></td>`
+            ? `<td>
+                        <button
+                            class="btn btn-sm assign-btn"
+                            data-id="${issue.id}"
+                            style="background:#6f2d5c; color:white; border:none; border-radius:10px;">
+                            Assign
+                        </button>
+                       </td>`
             : ""}
                 <td>${statusButton}</td>
             </tr>

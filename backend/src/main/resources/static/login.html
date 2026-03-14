@@ -9,12 +9,11 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="bg-light">
+<body style="background: linear-gradient(135deg, #fdf2f8, #f3e8ff); min-height: 100vh;">
 
-<!-- Top Header (same theme as other pages) -->
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-dark" style="background: linear-gradient(90deg, #1f2937, #111827);">
     <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Bug Tracking System</span>
+        <span class="navbar-brand mb-0 h1 fw-bold">Bug Tracking System</span>
     </div>
 </nav>
 
@@ -22,10 +21,10 @@
     <div class="row justify-content-center align-items-center min-vh-100">
         <div class="col-md-5">
 
-            <div class="card shadow-lg border-0">
+            <div class="card shadow-lg border-0" style="border-radius: 18px; background: linear-gradient(135deg, #ffffff, #fdf2f8);">
                 <div class="card-body p-4">
 
-                    <h3 class="text-center mb-4 text-primary">
+                    <h3 class="text-center mb-4 fw-bold" style="color:#6f2d5c;">
                         Login
                     </h3>
 
@@ -34,16 +33,19 @@
                     <form id="loginForm">
 
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" id="username" class="form-control" required>
+                            <label for="username" class="form-label" style="color:#6f2d5c;">Username</label>
+                            <input type="text" id="username" class="form-control" required
+                                   style="border-radius: 10px; border: 1px solid #e9d5ff;">
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" id="password" class="form-control" required>
+                            <label for="password" class="form-label" style="color:#6f2d5c;">Password</label>
+                            <input type="password" id="password" class="form-control" required
+                                   style="border-radius: 10px; border: 1px solid #fbcfe8;">
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" class="btn w-100"
+                                style="background: linear-gradient(90deg, #6f2d5c, #be185d); color: white; border: none; border-radius: 10px;">
                             Login
                         </button>
 
