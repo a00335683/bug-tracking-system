@@ -132,12 +132,20 @@ class CreateIssueUITest {
     }
 
     private void loginAsTester() {
-        driver.get("http://localhost:" + port + "/login.html");
+        driver.get("http://localhost:" + port + "/index.html");
+
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+                "localStorage.removeItem('token'); localStorage.removeItem('role');"
+        );
+        driver.navigate().refresh();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginForm")));
 
         driver.findElement(By.id("username")).sendKeys("tester1");
         driver.findElement(By.id("password")).sendKeys("pass");
         driver.findElement(By.id("loginForm")).submit();
 
-        wait.until(ExpectedConditions.urlContains("index.html"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("navIssues")));
     }
+
 }

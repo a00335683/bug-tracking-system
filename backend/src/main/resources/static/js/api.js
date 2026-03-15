@@ -10,5 +10,8 @@ function getAuthHeaders() {
 
 function logout() {
     localStorage.removeItem("token");
-    window.location.href = "login.html";
+    localStorage.removeItem("role");
+
+    hideNavbar();
+    loadPage("login.html", initLogin);
 }

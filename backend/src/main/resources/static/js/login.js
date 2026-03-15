@@ -1,4 +1,4 @@
-$(document).ready(function () {
+function initLogin() {
 
     $("#loginForm").on("submit", function (event) {
         event.preventDefault();
@@ -20,8 +20,9 @@ $(document).ready(function () {
                 localStorage.setItem("token", response.token);
                 localStorage.setItem("role", response.role);
 
-                // redirect to SPA
-                window.location.href = "index.html";
+                // load dashboard inside SPA
+                showNavbar();
+                loadPage("dashboard.html", initDashboard);
             },
 
             error: function () {
@@ -32,4 +33,4 @@ $(document).ready(function () {
         });
     });
 
-});
+}

@@ -13,6 +13,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -69,6 +69,13 @@ class LoginUITest {
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        driver.get("http://localhost:" + port + "/index.html");
+
+        ((JavascriptExecutor) driver).executeScript(
+                "localStorage.removeItem('token'); localStorage.removeItem('role');"
+        );
+        driver.navigate().refresh();
     }
 
     @AfterEach
@@ -83,21 +90,22 @@ class LoginUITest {
     }
 
     @Test
-    void loginSuccess_redirectsToIndex() {
-        driver.get("http://localhost:" + port + "/login.html");
+    void loginSuccess_loadsDashboardInSpa() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginForm")));
 
         driver.findElement(By.id("username")).sendKeys("tester1");
         driver.findElement(By.id("password")).sendKeys("pass");
         driver.findElement(By.id("loginForm")).submit();
 
-        wait.until(ExpectedConditions.urlContains("index.html"));
-        assertTrue(driver.getCurrentUrl().contains("index.html"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("projectCount")));
 
+        assertTrue(driver.getCurrentUrl().contains("index.html"));
+        assertTrue(driver.findElement(By.id("projectCount")).isDisplayed());
     }
 
     @Test
     void loginFailure_showsErrorMessage() {
-        driver.get("http://localhost:" + port + "/login.html");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginForm")));
 
         driver.findElement(By.id("username")).sendKeys("tester1");
         driver.findElement(By.id("password")).sendKeys("wrongpass");
@@ -108,6 +116,6 @@ class LoginUITest {
         );
 
         assertTrue(errorMessage.isDisplayed());
-        assertTrue(driver.getCurrentUrl().contains("login.html"));
+        assertTrue(driver.getCurrentUrl().contains("index.html"));
     }
 }

@@ -123,12 +123,20 @@ class ArchiveProjectUITest {
     }
 
     private void loginAsAdmin() {
-        driver.get("http://localhost:" + port + "/login.html");
+        driver.get("http://localhost:" + port + "/index.html");
+
+        ((JavascriptExecutor) driver).executeScript(
+                "localStorage.removeItem('token'); localStorage.removeItem('role');"
+        );
+        driver.navigate().refresh();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("loginForm")));
 
         driver.findElement(By.id("username")).sendKeys("admin");
         driver.findElement(By.id("password")).sendKeys("password");
         driver.findElement(By.id("loginForm")).submit();
 
-        wait.until(ExpectedConditions.urlContains("index.html"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("navProjects")));
     }
+
 }
