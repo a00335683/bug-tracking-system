@@ -12,6 +12,9 @@ The system allows teams to manage projects and track software issues from report
 - JWT Authentication 
 
 ## User Manual
+Part 1: [User Manual Part 1](User_Manual_Part1.pdf)  
+Part 2: [User Manual Part 2](User_Manual_Part2.pdf)
+
 The user manual with screenshots explains how to use the system for:
 
 - Administrator
