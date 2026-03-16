@@ -31,4 +31,7 @@ app:
       tester-password: tester123
       developer-password: dev123
 
+jwt:
+  secret: secretkey
+
 

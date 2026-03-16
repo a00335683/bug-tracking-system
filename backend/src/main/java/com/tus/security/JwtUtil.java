@@ -3,6 +3,7 @@ package com.tus.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -10,8 +11,11 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+
+
     // Secret key used to sign the JWT token
-    private final String SECRET_KEY = "secretkey";
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
 
     // Token validity: 1 hour
     private final long EXPIRATION_TIME = 1000 * 60 * 60;
