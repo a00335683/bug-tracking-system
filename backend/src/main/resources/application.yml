@@ -25,4 +25,10 @@ server:
     include-stacktrace: always
     include-exception: true
 
+app:
+    seed:
+      admin-password: admin123
+      tester-password: tester123
+      developer-password: dev123
+
 

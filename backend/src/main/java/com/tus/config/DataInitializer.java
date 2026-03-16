@@ -12,11 +12,21 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @Profile({"dev", "test"})
 public class DataInitializer {
+
+    @Value("${app.seed.admin-password}")
+    private String adminPassword;
+
+    @Value("${app.seed.tester-password}")
+    private String testerPassword;
+
+    @Value("${app.seed.developer-password}")
+    private String developerPassword;
 
     @Bean
     CommandLineRunner initData(
@@ -33,21 +43,21 @@ public class DataInitializer {
 
             User admin = userRepository.save(new User(
                     "admin",
-                    passwordEncoder.encode("password"),
+                    passwordEncoder.encode(adminPassword),
                     "ADMIN",
                     true
             ));
 
             User tester = userRepository.save(new User(
                     "tester1",
-                    passwordEncoder.encode("tester123"),
+                    passwordEncoder.encode(testerPassword),
                     "TESTER",
                     true
             ));
 
             User developer = userRepository.save(new User(
                     "dev1",
-                    passwordEncoder.encode("pass"),
+                    passwordEncoder.encode(developerPassword),
                     "DEVELOPER",
                     true
             ));
