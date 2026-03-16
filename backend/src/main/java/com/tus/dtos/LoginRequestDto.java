@@ -6,6 +6,7 @@ public class LoginRequestDto {
     private String password;
 
     public LoginRequestDto() {
+        // Needed for JSON
     }
 
     public String getUsername() {

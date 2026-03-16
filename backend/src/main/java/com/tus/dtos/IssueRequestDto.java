@@ -8,7 +8,9 @@ public class IssueRequestDto {
     private String description;
     private String priority;
 
-    public IssueRequestDto() {}
+    public IssueRequestDto() {
+        // Needed for JSON
+    }
 
     public Long getProjectId() {
         return projectId;

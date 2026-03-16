@@ -12,14 +12,18 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String TIMESTAMP = "timestamp";
+    private static final String ERROR = "error";
+    private static final String STATUS = "status";
+
     // Handles validation and bad request errors
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
 
         Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("error", ex.getMessage());
-        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+        errorResponse.put(TIMESTAMP, LocalDateTime.now());
+        errorResponse.put(ERROR, ex.getMessage());
+        errorResponse.put(STATUS, HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -29,9 +33,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
 
         Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("error", ex.getMessage());
-        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+        errorResponse.put(TIMESTAMP, LocalDateTime.now());
+        errorResponse.put(ERROR, ex.getMessage());
+        errorResponse.put(STATUS, HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -41,9 +45,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
 
         Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("error", ex.getMessage());
-        errorResponse.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorResponse.put(TIMESTAMP, LocalDateTime.now());
+        errorResponse.put(ERROR, ex.getMessage());
+        errorResponse.put(STATUS, HttpStatus.INTERNAL_SERVER_ERROR.value());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }

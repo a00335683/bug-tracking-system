@@ -15,10 +15,10 @@ public class JwtUtil {
 
     // Secret key used to sign the JWT token
     @Value("${jwt.secret}")
-    private String SECRET_KEY;
+    private String secretKey;
 
     // Token validity: 1 hour
-    private final long EXPIRATION_TIME = 1000 * 60 * 60;
+    private static final long EXPIRATION_NAME = 1000L * 60 * 60;
 
     // Generate a JWT token for a given username
     public String generateToken(String username) {
@@ -26,8 +26,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_NAME))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
@@ -54,7 +54,7 @@ public class JwtUtil {
     private Claims extractAllClaims(String token) {
 
         return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
     }

@@ -5,7 +5,9 @@ public class LoginRequest {
     private String username;
     private String password;
 
-    public LoginRequest() {}
+    public LoginRequest() {
+        // Needed for JSON
+    }
 
     public String getUsername() {
         return username;

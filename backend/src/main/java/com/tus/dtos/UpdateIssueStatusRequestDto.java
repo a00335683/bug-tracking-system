@@ -5,7 +5,9 @@ public class UpdateIssueStatusRequestDto {
     private String status;
     private String resolutionNote;
 
-    public UpdateIssueStatusRequestDto() {}
+    public UpdateIssueStatusRequestDto() {
+        // Needed for JSON
+    }
 
     public String getStatus() {
         return status;

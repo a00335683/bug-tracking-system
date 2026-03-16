@@ -4,7 +4,9 @@ public class AssignIssueRequestDto {
 
     private Long developerId;
 
-    public AssignIssueRequestDto() {}
+    public AssignIssueRequestDto() {
+        // Needed for JSON
+    }
 
     public Long getDeveloperId() {
         return developerId;

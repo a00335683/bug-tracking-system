@@ -5,7 +5,9 @@ public class ProjectRequestDto {
     private String name;
     private String description;
 
-    public ProjectRequestDto() {}
+    public ProjectRequestDto() {
+        // Needed for JSON
+    }
 
     public String getName() {
         return name;

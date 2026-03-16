@@ -8,7 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -27,7 +26,7 @@ public class UserController {
         List<UserResponseDto> users = userRepository.findAll()
                 .stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(users);
     }

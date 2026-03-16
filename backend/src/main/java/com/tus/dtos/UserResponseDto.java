@@ -7,6 +7,7 @@ public class UserResponseDto {
     private boolean active;
 
     public UserResponseDto() {
+        // Needed for JSON
     }
 
     public UserResponseDto(Long id, String username, String role, boolean active) {

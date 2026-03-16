@@ -16,6 +16,10 @@ public class IssueResponseDto {
     private String resolutionNote;
     private String assignedToUsername;
 
+    // DTO constructor contains many fields because
+    // it represents full issue details returned to the client
+    // hence sonar warning supress
+    @SuppressWarnings("java:S107")
     public IssueResponseDto(Long id,
                             String title,
                             String description,

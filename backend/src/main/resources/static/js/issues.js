@@ -191,6 +191,7 @@ function initIssues() {
 
             if (currentStatus === "IN_PROGRESS") {
                 statusSelect.append('<option value="RESOLVED">RESOLVED</option>');
+                $("#resolutionNoteGroup").removeClass("d-none"); // show note field
             }
         }
 
