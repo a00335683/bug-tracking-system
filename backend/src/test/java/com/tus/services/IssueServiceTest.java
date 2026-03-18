@@ -358,4 +358,366 @@ class IssueServiceTest {
 
         assertEquals(IssueStatus.CLOSED, closed.getStatus());
     }
+
+    // -------------------------
+    // extra coverage tests
+    // -------------------------
+
+    @Test
+    void createIssue_titleRequired() {
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.createIssue(
+                        project.getId(),
+                        tester.getId(),
+                        "",
+                        "Bug description",
+                        "HIGH"
+                )
+        );
+    }
+
+    @Test
+    void createIssue_descriptionRequired() {
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.createIssue(
+                        project.getId(),
+                        tester.getId(),
+                        "Bug title",
+                        "",
+                        "HIGH"
+                )
+        );
+    }
+
+    @Test
+    void createIssue_projectNotFound() {
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.createIssue(
+                        99999L,
+                        tester.getId(),
+                        "Bug",
+                        "desc",
+                        "HIGH"
+                )
+        );
+    }
+
+    @Test
+    void createIssue_reporterNotFound() {
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.createIssue(
+                        project.getId(),
+                        99999L,
+                        "Bug",
+                        "desc",
+                        "HIGH"
+                )
+        );
+    }
+
+    @Test
+    void getAllIssues_returnsAllIssues() {
+
+        issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug1",
+                "desc1",
+                "HIGH"
+        );
+
+        issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug2",
+                "desc2",
+                "LOW"
+        );
+
+        List<Issue> issues = issueService.getAllIssues();
+
+        assertEquals(2, issues.size());
+    }
+
+    @Test
+    void assignIssue_closedIssue() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "MEDIUM"
+        );
+
+        issue.setStatus(IssueStatus.CLOSED);
+        issueRepository.save(issue);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.assignIssue(issue.getId(), developer.getId())
+        );
+    }
+
+    @Test
+    void assignIssue_issueNotFound() {
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.assignIssue(99999L, developer.getId())
+        );
+    }
+
+    @Test
+    void assignIssue_developerNotFound() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "MEDIUM"
+        );
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.assignIssue(issue.getId(), 99999L)
+        );
+    }
+
+    @Test
+    void updateStatus_issueNotFound() {
+
+        setDeveloperAuth(developer.getUsername());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.updateStatus(99999L, "IN_PROGRESS", null)
+        );
+    }
+
+    @Test
+    void updateStatus_closedIssueCannotBeModified() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        issue.setStatus(IssueStatus.CLOSED);
+        issueRepository.save(issue);
+
+        setAdminAuth("admin");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.updateStatus(issue.getId(), "CLOSED", null)
+        );
+    }
+
+    @Test
+    void updateStatus_invalidStatusValue() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        issueService.assignIssue(issue.getId(), developer.getId());
+        setDeveloperAuth(developer.getUsername());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                issueService.updateStatus(issue.getId(), "DONE", null)
+        );
+    }
+
+    @Test
+    void updateStatus_invalidTransition() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        issueService.assignIssue(issue.getId(), developer.getId());
+        setDeveloperAuth(developer.getUsername());
+
+        assertThrows(IllegalStateException.class, () ->
+                issueService.updateStatus(issue.getId(), "VERIFIED", null)
+        );
+    }
+
+    @Test
+    void testerCannotMoveIssueToInProgress() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        issueService.assignIssue(issue.getId(), developer.getId());
+        setTesterAuth(tester.getUsername());
+
+        assertThrows(IllegalStateException.class, () ->
+                issueService.updateStatus(issue.getId(), "IN_PROGRESS", null)
+        );
+    }
+
+    @Test
+    void developerCannotVerifyIssue() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        issueService.assignIssue(issue.getId(), developer.getId());
+
+        setDeveloperAuth(developer.getUsername());
+        issueService.updateStatus(issue.getId(), "IN_PROGRESS", null);
+        issueService.updateStatus(issue.getId(), "RESOLVED", "Fixed bug");
+
+        assertThrows(IllegalStateException.class, () ->
+                issueService.updateStatus(issue.getId(), "VERIFIED", null)
+        );
+    }
+
+    @Test
+    void testerCannotCloseIssue() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        issueService.assignIssue(issue.getId(), developer.getId());
+
+        setDeveloperAuth(developer.getUsername());
+        issueService.updateStatus(issue.getId(), "IN_PROGRESS", null);
+        issueService.updateStatus(issue.getId(), "RESOLVED", "Fixed");
+
+        setTesterAuth(tester.getUsername());
+        issueService.updateStatus(issue.getId(), "VERIFIED", null);
+
+        assertThrows(IllegalStateException.class, () ->
+                issueService.updateStatus(issue.getId(), "CLOSED", null)
+        );
+    }
+
+    @Test
+    void developerCannotUpdateIssueAssignedToAnotherDeveloper() {
+
+        User anotherDeveloper = new User("dev2", "pass", "DEVELOPER", true);
+        userRepository.save(anotherDeveloper);
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        issueService.assignIssue(issue.getId(), anotherDeveloper.getId());
+
+        setDeveloperAuth(developer.getUsername());
+
+        assertThrows(IllegalStateException.class, () ->
+                issueService.updateStatus(issue.getId(), "IN_PROGRESS", null)
+        );
+    }
+
+    @Test
+    void developerCannotUpdateUnassignedIssue() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        setDeveloperAuth(developer.getUsername());
+
+        assertThrows(IllegalStateException.class, () ->
+                issueService.updateStatus(issue.getId(), "IN_PROGRESS", null)
+        );
+    }
+
+    @Test
+    void filterIssues_byStatus() {
+
+        Issue issue = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug",
+                "desc",
+                "HIGH"
+        );
+
+        issueService.assignIssue(issue.getId(), developer.getId());
+        setDeveloperAuth(developer.getUsername());
+        issueService.updateStatus(issue.getId(), "IN_PROGRESS", null);
+
+        List<Issue> issues = issueService.filterIssues(
+                null,
+                "IN_PROGRESS",
+                null
+        );
+
+        assertEquals(1, issues.size());
+        assertEquals(IssueStatus.IN_PROGRESS, issues.get(0).getStatus());
+    }
+
+    @Test
+    void filterIssues_byStatusAndPriority() {
+
+        Issue issue1 = issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug1",
+                "desc1",
+                "HIGH"
+        );
+
+        issueService.assignIssue(issue1.getId(), developer.getId());
+        setDeveloperAuth(developer.getUsername());
+        issueService.updateStatus(issue1.getId(), "IN_PROGRESS", null);
+
+        issueService.createIssue(
+                project.getId(),
+                tester.getId(),
+                "Bug2",
+                "desc2",
+                "LOW"
+        );
+
+        List<Issue> issues = issueService.filterIssues(
+                null,
+                "IN_PROGRESS",
+                "HIGH"
+        );
+
+        assertEquals(1, issues.size());
+        assertEquals(IssueStatus.IN_PROGRESS, issues.get(0).getStatus());
+        assertEquals(IssuePriority.HIGH, issues.get(0).getPriority());
+    }
 }
