@@ -61,10 +61,6 @@ class IssueServiceTest {
         userRepository.save(developer);
     }
 
-    // -------------------------
-    // Authentication helpers
-    // -------------------------
-
     private void setDeveloperAuth(String username) {
         var auth = new UsernamePasswordAuthenticationToken(
                 username,
@@ -92,10 +88,6 @@ class IssueServiceTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    // -------------------------
-    // createIssue tests
-    // -------------------------
-
     @Test
     void createIssue_success() {
 
@@ -115,10 +107,13 @@ class IssueServiceTest {
     @Test
     void createIssue_invalidPriority() {
 
+        Long projectId = project.getId();
+        Long testerId = tester.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
                 issueService.createIssue(
-                        project.getId(),
-                        tester.getId(),
+                        projectId,
+                        testerId,
                         "Bug",
                         "desc",
                         "CRITICAL"
@@ -132,20 +127,19 @@ class IssueServiceTest {
         project.setStatus("ARCHIVED");
         projectRepository.save(project);
 
+        Long projectId = project.getId();
+        Long testerId = tester.getId();
+
         assertThrows(IllegalStateException.class, () ->
                 issueService.createIssue(
-                        project.getId(),
-                        tester.getId(),
+                        projectId,
+                        testerId,
                         "Bug",
                         "desc",
                         "LOW"
                 )
         );
     }
-
-    // -------------------------
-    // assignIssue tests
-    // -------------------------
 
     @Test
     void assignIssue_success() {
@@ -176,8 +170,11 @@ class IssueServiceTest {
 
         issueService.assignIssue(issue.getId(), developer.getId());
 
+        Long issueId = issue.getId();
+        Long developerId = developer.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                issueService.assignIssue(issue.getId(), developer.getId())
+                issueService.assignIssue(issueId, developerId)
         );
     }
 
@@ -192,14 +189,13 @@ class IssueServiceTest {
                 "LOW"
         );
 
+        Long issueId = issue.getId();
+        Long testerId = tester.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                issueService.assignIssue(issue.getId(), tester.getId())
+                issueService.assignIssue(issueId, testerId)
         );
     }
-
-    // -------------------------
-    // filterIssues tests
-    // -------------------------
 
     @Test
     void filterIssues_byProject() {
@@ -258,10 +254,6 @@ class IssueServiceTest {
         );
     }
 
-    // -------------------------
-    // updateStatus workflow tests
-    // -------------------------
-
     @Test
     void developerCanStartIssue() {
 
@@ -303,8 +295,10 @@ class IssueServiceTest {
 
         issueService.updateStatus(issue.getId(), "IN_PROGRESS", null);
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                issueService.updateStatus(issue.getId(), "RESOLVED", null)
+                issueService.updateStatus(issueId, "RESOLVED", null)
         );
     }
 
@@ -359,17 +353,16 @@ class IssueServiceTest {
         assertEquals(IssueStatus.CLOSED, closed.getStatus());
     }
 
-    // -------------------------
-    // extra coverage tests
-    // -------------------------
-
     @Test
     void createIssue_titleRequired() {
 
+        Long projectId = project.getId();
+        Long testerId = tester.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
                 issueService.createIssue(
-                        project.getId(),
-                        tester.getId(),
+                        projectId,
+                        testerId,
                         "",
                         "Bug description",
                         "HIGH"
@@ -380,10 +373,13 @@ class IssueServiceTest {
     @Test
     void createIssue_descriptionRequired() {
 
+        Long projectId = project.getId();
+        Long testerId = tester.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
                 issueService.createIssue(
-                        project.getId(),
-                        tester.getId(),
+                        projectId,
+                        testerId,
                         "Bug title",
                         "",
                         "HIGH"
@@ -394,10 +390,12 @@ class IssueServiceTest {
     @Test
     void createIssue_projectNotFound() {
 
+        Long testerId = tester.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
                 issueService.createIssue(
                         99999L,
-                        tester.getId(),
+                        testerId,
                         "Bug",
                         "desc",
                         "HIGH"
@@ -408,9 +406,11 @@ class IssueServiceTest {
     @Test
     void createIssue_reporterNotFound() {
 
+        Long projectId = project.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
                 issueService.createIssue(
-                        project.getId(),
+                        projectId,
                         99999L,
                         "Bug",
                         "desc",
@@ -457,16 +457,21 @@ class IssueServiceTest {
         issue.setStatus(IssueStatus.CLOSED);
         issueRepository.save(issue);
 
+        Long issueId = issue.getId();
+        Long developerId = developer.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                issueService.assignIssue(issue.getId(), developer.getId())
+                issueService.assignIssue(issueId, developerId)
         );
     }
 
     @Test
     void assignIssue_issueNotFound() {
 
+        Long developerId = developer.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                issueService.assignIssue(99999L, developer.getId())
+                issueService.assignIssue(99999L, developerId)
         );
     }
 
@@ -481,8 +486,10 @@ class IssueServiceTest {
                 "MEDIUM"
         );
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                issueService.assignIssue(issue.getId(), 99999L)
+                issueService.assignIssue(issueId, 99999L)
         );
     }
 
@@ -512,8 +519,10 @@ class IssueServiceTest {
 
         setAdminAuth("admin");
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                issueService.updateStatus(issue.getId(), "CLOSED", null)
+                issueService.updateStatus(issueId, "CLOSED", null)
         );
     }
 
@@ -531,8 +540,10 @@ class IssueServiceTest {
         issueService.assignIssue(issue.getId(), developer.getId());
         setDeveloperAuth(developer.getUsername());
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                issueService.updateStatus(issue.getId(), "DONE", null)
+                issueService.updateStatus(issueId, "DONE", null)
         );
     }
 
@@ -550,8 +561,10 @@ class IssueServiceTest {
         issueService.assignIssue(issue.getId(), developer.getId());
         setDeveloperAuth(developer.getUsername());
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalStateException.class, () ->
-                issueService.updateStatus(issue.getId(), "VERIFIED", null)
+                issueService.updateStatus(issueId, "VERIFIED", null)
         );
     }
 
@@ -569,8 +582,10 @@ class IssueServiceTest {
         issueService.assignIssue(issue.getId(), developer.getId());
         setTesterAuth(tester.getUsername());
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalStateException.class, () ->
-                issueService.updateStatus(issue.getId(), "IN_PROGRESS", null)
+                issueService.updateStatus(issueId, "IN_PROGRESS", null)
         );
     }
 
@@ -591,8 +606,10 @@ class IssueServiceTest {
         issueService.updateStatus(issue.getId(), "IN_PROGRESS", null);
         issueService.updateStatus(issue.getId(), "RESOLVED", "Fixed bug");
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalStateException.class, () ->
-                issueService.updateStatus(issue.getId(), "VERIFIED", null)
+                issueService.updateStatus(issueId, "VERIFIED", null)
         );
     }
 
@@ -616,8 +633,10 @@ class IssueServiceTest {
         setTesterAuth(tester.getUsername());
         issueService.updateStatus(issue.getId(), "VERIFIED", null);
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalStateException.class, () ->
-                issueService.updateStatus(issue.getId(), "CLOSED", null)
+                issueService.updateStatus(issueId, "CLOSED", null)
         );
     }
 
@@ -639,8 +658,10 @@ class IssueServiceTest {
 
         setDeveloperAuth(developer.getUsername());
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalStateException.class, () ->
-                issueService.updateStatus(issue.getId(), "IN_PROGRESS", null)
+                issueService.updateStatus(issueId, "IN_PROGRESS", null)
         );
     }
 
@@ -657,8 +678,10 @@ class IssueServiceTest {
 
         setDeveloperAuth(developer.getUsername());
 
+        Long issueId = issue.getId();
+
         assertThrows(IllegalStateException.class, () ->
-                issueService.updateStatus(issue.getId(), "IN_PROGRESS", null)
+                issueService.updateStatus(issueId, "IN_PROGRESS", null)
         );
     }
 
