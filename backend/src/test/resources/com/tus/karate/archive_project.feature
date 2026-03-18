@@ -8,7 +8,7 @@ Scenario: Admin archives project after issue closed
   """
   {
     "username": "admin",
-    "password": "password"
+    "password": "admin123"
   }
   """
   When method post
@@ -32,7 +32,7 @@ Scenario: Admin archives project after issue closed
   """
   {
     "username": "dev1",
-    "password": "pass"
+    "password": "dev123"
   }
   """
   When method post

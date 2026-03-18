@@ -10,7 +10,7 @@ Scenario: Filter issues by priority
   """
   {
     "username": "admin",
-    "password": "password"
+    "password": "admin123"
   }
   """
   When method post

@@ -6,7 +6,7 @@ Scenario: Successful login as admin
   """
   {
     "username": "admin",
-    "password": "password"
+    "password": "admin123"
   }
   """
   When method post
@@ -32,7 +32,7 @@ Scenario: Successful login as developer
   """
   {
     "username": "dev1",
-    "password": "pass"
+    "password": "dev123"
   }
   """
   When method post

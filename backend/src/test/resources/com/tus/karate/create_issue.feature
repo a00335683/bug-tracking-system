@@ -8,7 +8,7 @@ Scenario: Tester creates issue in project
   """
   {
     "username": "admin",
-    "password": "password"
+    "password": "admin123"
   }
   """
   When method post

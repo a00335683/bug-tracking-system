@@ -8,7 +8,7 @@ Scenario: Admin assigns issue to developer
   """
   {
     "username": "admin",
-    "password": "password"
+    "password": "admin123"
   }
   """
   When method post
