@@ -82,8 +82,10 @@ class ProjectServiceTest {
         issue.setStatus(IssueStatus.OPEN);
         issueRepository.save(issue);
 
+        Long projectId = project.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                projectService.archiveProject(project.getId())
+                projectService.archiveProject(projectId)
         );
     }
 
@@ -92,8 +94,10 @@ class ProjectServiceTest {
         project.setStatus("ARCHIVED");
         projectRepository.save(project);
 
+        Long projectId = project.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                projectService.archiveProject(project.getId())
+                projectService.archiveProject(projectId)
         );
     }
 
@@ -109,8 +113,10 @@ class ProjectServiceTest {
 
     @Test
     void reactivateProject_alreadyActive() {
+        Long projectId = project.getId();
+
         assertThrows(IllegalArgumentException.class, () ->
-                projectService.reactivateProject(project.getId())
+                projectService.reactivateProject(projectId)
         );
     }
 

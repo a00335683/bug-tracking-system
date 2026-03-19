@@ -41,7 +41,7 @@ public class DataInitializer {
             projectRepository.deleteAll();
             userRepository.deleteAll();
 
-            User admin = userRepository.save(new User(
+            userRepository.save(new User(
                     "admin",
                     passwordEncoder.encode(adminPassword),
                     "ADMIN",

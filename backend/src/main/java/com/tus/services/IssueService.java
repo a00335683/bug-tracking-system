@@ -17,6 +17,10 @@ import java.util.List;
 @Service
 public class IssueService {
 
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private static final String ROLE_TESTER = "ROLE_TESTER";
+    private static final String ROLE_DEVELOPER = "ROLE_DEVELOPER";
+
     private final IssueRepository issueRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
@@ -54,12 +58,7 @@ public class IssueService {
         User reporter = userRepository.findById(reporterId)
                 .orElseThrow(() -> new IllegalArgumentException("Reporter not found"));
 
-        IssuePriority issuePriority;
-        try {
-            issuePriority = IssuePriority.valueOf(priority.toUpperCase());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid priority value");
-        }
+        IssuePriority issuePriority = parseIssuePriority(priority);
 
         Issue issue = new Issue(title, description, issuePriority, project, reporter);
 
@@ -88,7 +87,6 @@ public class IssueService {
             throw new IllegalArgumentException("Selected user is not a developer");
         }
 
-        // Prevent assigning the same developer again
         if (issue.getAssignedTo() != null &&
                 issue.getAssignedTo().getId().equals(developerId)) {
             throw new IllegalArgumentException("Issue is already assigned to this developer");
@@ -105,77 +103,78 @@ public class IssueService {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 
-        // Once an issue is closed, it should not be changed again
-        if (issue.getStatus() == IssueStatus.CLOSED) {
-            throw new IllegalArgumentException("Closed issues cannot be modified");
-        }
+        validateIssueIsNotClosed(issue);
 
-        IssueStatus targetStatus;
-        try {
-            targetStatus = IssueStatus.valueOf(newStatus.toUpperCase());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid status value");
-        }
-
+        IssueStatus targetStatus = parseIssueStatus(newStatus);
         IssueStatus currentStatus = issue.getStatus();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
-        boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        validateTransition(currentStatus, targetStatus);
+        validateRolePermissions(authentication, targetStatus);
+        validateDeveloperAssignment(issue, authentication, username);
+        applyResolutionNoteIfNeeded(issue, targetStatus, resolutionNote);
 
-        boolean isTester = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_TESTER"));
+        issue.setStatus(targetStatus);
+        return issueRepository.save(issue);
+    }
 
-        boolean isDeveloper = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_DEVELOPER"));
-
-        // Only allow the correct next step in the workflow
-        boolean allowed =
-                (currentStatus == IssueStatus.OPEN && targetStatus == IssueStatus.IN_PROGRESS) ||
-                        (currentStatus == IssueStatus.IN_PROGRESS && targetStatus == IssueStatus.RESOLVED) ||
-                        (currentStatus == IssueStatus.RESOLVED && targetStatus == IssueStatus.VERIFIED) ||
-                        (currentStatus == IssueStatus.VERIFIED && targetStatus == IssueStatus.CLOSED);
-
-        if (!allowed) {
-            throw new IllegalStateException("Invalid status transition: " + currentStatus + " -> " + targetStatus);
+    private void validateIssueIsNotClosed(Issue issue) {
+        if (issue.getStatus() == IssueStatus.CLOSED) {
+            throw new IllegalArgumentException("Closed issues cannot be modified");
         }
+    }
 
-        // Only admin can close issues
-        if (targetStatus == IssueStatus.CLOSED && !isAdmin) {
+    private void validateTransition(IssueStatus currentStatus, IssueStatus targetStatus) {
+        if (!isAllowedTransition(currentStatus, targetStatus)) {
+            throw new IllegalStateException(
+                    "Invalid status transition: " + currentStatus + " -> " + targetStatus
+            );
+        }
+    }
+
+    private void validateRolePermissions(Authentication authentication, IssueStatus targetStatus) {
+        if (targetStatus == IssueStatus.CLOSED && !hasRole(authentication, ROLE_ADMIN)) {
             throw new IllegalStateException("Only admin can close issues");
         }
 
-        // Only tester can verify resolved issues
-        if (targetStatus == IssueStatus.VERIFIED && !isTester) {
+        if (targetStatus == IssueStatus.VERIFIED && !hasRole(authentication, ROLE_TESTER)) {
             throw new IllegalStateException("Only tester can verify issues");
         }
 
-        // Only developer can move issue into progress or resolve it
-        if ((targetStatus == IssueStatus.IN_PROGRESS || targetStatus == IssueStatus.RESOLVED) && !isDeveloper) {
+        if (requiresDeveloperRole(targetStatus) && !hasRole(authentication, ROLE_DEVELOPER)) {
             throw new IllegalStateException("Only developer can start or resolve issues");
         }
+    }
 
-        // Developer should only work on issues assigned to them
-        if (isDeveloper) {
-            if (issue.getAssignedTo() == null ||
-                    !issue.getAssignedTo().getUsername().equals(username)) {
-                throw new IllegalStateException("You can only update issues assigned to you");
-            }
+    private void validateDeveloperAssignment(Issue issue, Authentication authentication, String username) {
+        if (hasRole(authentication, ROLE_DEVELOPER) &&
+                (issue.getAssignedTo() == null ||
+                        !issue.getAssignedTo().getUsername().equals(username))) {
+            throw new IllegalStateException("You can only update issues assigned to you");
+        }
+    }
+
+    private void applyResolutionNoteIfNeeded(Issue issue, IssueStatus targetStatus, String resolutionNote) {
+        if (targetStatus != IssueStatus.RESOLVED) {
+            return;
         }
 
-        // Resolution note is needed when resolving an issue
-        if (targetStatus == IssueStatus.RESOLVED) {
-            if (resolutionNote == null || resolutionNote.isBlank()) {
-                throw new IllegalArgumentException("Resolution note is required when resolving an issue");
-            }
-            issue.setResolutionNote(resolutionNote);
+        if (resolutionNote == null || resolutionNote.isBlank()) {
+            throw new IllegalArgumentException("Resolution note is required when resolving an issue");
         }
 
-        issue.setStatus(targetStatus);
+        issue.setResolutionNote(resolutionNote);
+    }
 
-        return issueRepository.save(issue);
+    private boolean requiresDeveloperRole(IssueStatus targetStatus) {
+        return targetStatus == IssueStatus.IN_PROGRESS || targetStatus == IssueStatus.RESOLVED;
+    }
+
+    private boolean hasRole(Authentication authentication, String role) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(role));
     }
 
     // Filter issues by project, status, and priority
@@ -190,12 +189,7 @@ public class IssueService {
         }
 
         if (status != null && !status.isBlank()) {
-            IssueStatus issueStatus;
-            try {
-                issueStatus = IssueStatus.valueOf(status.toUpperCase());
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid status value");
-            }
+            IssueStatus issueStatus = parseIssueStatus(status);
 
             issues = issues.stream()
                     .filter(issue -> issue.getStatus() == issueStatus)
@@ -203,12 +197,7 @@ public class IssueService {
         }
 
         if (priority != null && !priority.isBlank()) {
-            IssuePriority issuePriority;
-            try {
-                issuePriority = IssuePriority.valueOf(priority.toUpperCase());
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid priority value");
-            }
+            IssuePriority issuePriority = parseIssuePriority(priority);
 
             issues = issues.stream()
                     .filter(issue -> issue.getPriority() == issuePriority)
@@ -216,5 +205,28 @@ public class IssueService {
         }
 
         return issues;
+    }
+
+    private IssueStatus parseIssueStatus(String status) {
+        try {
+            return IssueStatus.valueOf(status.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid status value");
+        }
+    }
+
+    private IssuePriority parseIssuePriority(String priority) {
+        try {
+            return IssuePriority.valueOf(priority.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid priority value");
+        }
+    }
+
+    private boolean isAllowedTransition(IssueStatus currentStatus, IssueStatus targetStatus) {
+        return (currentStatus == IssueStatus.OPEN && targetStatus == IssueStatus.IN_PROGRESS) ||
+                (currentStatus == IssueStatus.IN_PROGRESS && targetStatus == IssueStatus.RESOLVED) ||
+                (currentStatus == IssueStatus.RESOLVED && targetStatus == IssueStatus.VERIFIED) ||
+                (currentStatus == IssueStatus.VERIFIED && targetStatus == IssueStatus.CLOSED);
     }
 }
