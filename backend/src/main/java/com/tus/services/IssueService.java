@@ -207,6 +207,19 @@ public class IssueService {
         return issues;
     }
 
+    // Delete an issue
+    public void deleteIssue(Long issueId) {
+
+        Issue issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
+
+        if (issue.getStatus() != IssueStatus.OPEN) {
+            throw new IllegalStateException("Only OPEN issues can be deleted");
+        }
+
+        issueRepository.delete(issue);
+    }
+
     private IssueStatus parseIssueStatus(String status) {
         try {
             return IssueStatus.valueOf(status.toUpperCase());

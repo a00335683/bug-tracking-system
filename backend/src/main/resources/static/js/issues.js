@@ -34,6 +34,7 @@ function initIssues() {
 
     if (role !== "ADMIN") {
         $("#assignHeader").remove();
+        $("#deleteHeader").remove();
     }
 
     if (role !== "TESTER") {
@@ -72,6 +73,23 @@ function initIssues() {
             statusButton = `<span class="text-muted">Not allowed</span>`;
         }
 
+        let deleteButton = `<span class="text-muted">Not allowed</span>`;
+
+        if (role === "ADMIN") {
+            if (issue.status === "OPEN") {
+                deleteButton = `
+                    <button
+                        class="btn btn-sm delete-btn"
+                        data-id="${issue.id}"
+                        style="background:#dc2626; color:white; border:none; border-radius:10px;">
+                        Delete
+                    </button>
+                `;
+            } else {
+                deleteButton = `<span class="text-muted">Not allowed</span>`;
+            }
+        }
+
         return `
             <tr>
                 <td>${issue.id}</td>
@@ -82,13 +100,16 @@ function initIssues() {
                 <td>${issue.assignedToUsername ?? "-"}</td>
                 ${role === "ADMIN"
             ? `<td>
-                        <button
-                            class="btn btn-sm assign-btn"
-                            data-id="${issue.id}"
-                            style="background:#6f2d5c; color:white; border:none; border-radius:10px;">
-                            Assign
-                        </button>
+                            <button
+                                class="btn btn-sm assign-btn"
+                                data-id="${issue.id}"
+                                style="background:#6f2d5c; color:white; border:none; border-radius:10px;">
+                                Assign
+                            </button>
                        </td>`
+            : ""}
+                ${role === "ADMIN"
+            ? `<td>${deleteButton}</td>`
             : ""}
                 <td>${statusButton}</td>
             </tr>
@@ -107,7 +128,8 @@ function initIssues() {
                 { targets: 4, searchable: false },
                 { targets: 5, searchable: false },
                 { targets: 6, searchable: false, orderable: false },
-                { targets: 7, searchable: false, orderable: false }
+                { targets: 7, searchable: false, orderable: false },
+                { targets: 8, searchable: false, orderable: false }
             ];
         } else {
             options.columnDefs = [
@@ -137,7 +159,7 @@ function initIssues() {
                 tableBody.empty();
 
                 if (!issues || issues.length === 0) {
-                    const colspan = role === "ADMIN" ? 8 : 7;
+                    const colspan = role === "ADMIN" ? 9 : 7;
                     tableBody.append(`
                         <tr>
                             <td colspan="${colspan}" class="text-center">No issues found</td>
@@ -173,6 +195,35 @@ function initIssues() {
         modal.show();
     });
 
+    $(document).off("click", ".delete-btn").on("click", ".delete-btn", function () {
+        const issueId = $(this).data("id");
+
+        if (!confirm("Are you sure you want to delete this issue?")) {
+            return;
+        }
+
+        $.ajax({
+            url: "/api/issues/" + issueId,
+            type: "DELETE",
+            headers: getAuthHeaders(),
+            success: function (response) {
+                alert(response || "Issue deleted successfully.");
+                loadIssues("/api/issues");
+            },
+            error: function (xhr) {
+                let message = "Failed to delete issue.";
+
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    message = xhr.responseJSON.error;
+                } else if (xhr.responseText) {
+                    message = xhr.responseText;
+                }
+
+                alert(message);
+            }
+        });
+    });
+
     $(document).off("click", ".status-btn").on("click", ".status-btn", function () {
         const issueId = $(this).data("id");
         const currentStatus = $(this).data("status");
@@ -191,7 +242,7 @@ function initIssues() {
 
             if (currentStatus === "IN_PROGRESS") {
                 statusSelect.append('<option value="RESOLVED">RESOLVED</option>');
-                $("#resolutionNoteGroup").removeClass("d-none"); // show note field
+                $("#resolutionNoteGroup").removeClass("d-none");
             }
         }
 

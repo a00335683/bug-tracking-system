@@ -75,6 +75,13 @@ public class IssueController {
         return ResponseEntity.ok(toDto(issue));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteIssue(@PathVariable Long id) {
+        issueService.deleteIssue(id);
+        return ResponseEntity.ok("Issue deleted successfully");
+    }
+
     @GetMapping("/filter")
     public ResponseEntity<List<IssueResponseDto>> filterIssues(
             @RequestParam(required = false) Long projectId,
